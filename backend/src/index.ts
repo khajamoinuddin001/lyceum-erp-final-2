@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express = require('express');
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth';
@@ -18,7 +18,7 @@ app.use(express.json()); // To parse JSON bodies
 
 // Health check endpoint
 // FIX: Explicitly type req and res to match express.RequestHandler
-app.get('/api', (req: Request, res: Response) => {
+app.get('/api', (req: express.Request, res: express.Response) => {
   res.json({ message: 'Lyceum Academy API is running!' });
 });
 

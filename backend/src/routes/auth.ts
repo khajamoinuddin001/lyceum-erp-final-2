@@ -1,6 +1,6 @@
-import express, { Request, Response } from 'express';
+import express = require('express');
 // FIX: Changed require to import for PrismaClient to resolve module resolution issues with TypeScript.
-import { PrismaClient } from '@prisma/client';
+const { PrismaClient } = require('@prisma/client');
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { DEFAULT_PERMISSIONS } from '../../../components/constants'; 
@@ -11,7 +11,7 @@ const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-key';
 
 // POST /api/auth/register (For Students)
-router.post('/register', async (req: Request, res: Response) => {
+router.post('/register', async (req: express.Request, res: express.Response) => {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
@@ -65,7 +65,7 @@ router.post('/register', async (req: Request, res: Response) => {
 
 
 // POST /api/auth/login
-router.post('/login', async (req: Request, res: Response) => {
+router.post('/login', async (req: express.Request, res: express.Response) => {
     const { email, password } = req.body;
 
     if (!email || !password) {

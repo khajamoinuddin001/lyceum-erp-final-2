@@ -1,4 +1,4 @@
-import * as express from 'express';
+import express = require('express');
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-key';

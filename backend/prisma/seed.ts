@@ -1,5 +1,5 @@
 // FIX: Changed require to import for PrismaClient to resolve module resolution issues with TypeScript.
-import { PrismaClient } from '@prisma/client';
+const { PrismaClient } = require('@prisma/client');
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();

@@ -1,6 +1,6 @@
-import * as express from 'express';
+import express = require('express');
 // FIX: Changed require to import for PrismaClient to resolve module resolution issues with TypeScript.
-import { PrismaClient } from '@prisma/client';
+const { PrismaClient } = require('@prisma/client');
 import bcrypt from 'bcryptjs';
 import { AuthRequest } from '../middleware/auth';
 import { DEFAULT_PERMISSIONS } from '../../../components/constants';
@@ -151,8 +151,6 @@ router.put('/:userId/permissions', async (req: express.Request, res: express.Res
         res.status(500).json({ message: 'Internal server error.' });
     }
 });
-
-// POST /api/users (Add new staff)
 router.post('/', async (req: express.Request, res: express.Response) => {
     if ((req as AuthRequest).user?.role !== 'Admin') {
         return res.status(403).json({ message: 'Only admins can add new users.' });
