@@ -1,0 +1,174 @@
+
+
+import React from 'react';
+// FIX: Removed INITIAL_COUPONS and its type import. The data has been moved to hooks/lms.ts to better group feature-specific data.
+import type { OdooApp, UserRole, AppPermissions, ChecklistItem, QuotationTemplate } from '../types';
+import {
+  MessagesSquare,
+  Calendar,
+  Contact,
+  ClipboardList,
+  BarChart3,
+  Cog,
+  FileText,
+  ShoppingCart,
+  DollarSign,
+  Users,
+  Warehouse,
+  Wrench,
+  MonitorPlay,
+  Share2,
+  KeyRound,
+  ConciergeBell,
+  BookOpen,
+} from './icons';
+
+export const ODOO_APPS: OdooApp[] = [
+  {
+    name: 'Dashboard',
+    icon: <BarChart3 size={36} />,
+    bgColor: 'bg-cyan-100',
+    iconColor: 'text-cyan-600',
+  },
+  {
+    name: 'Contacts',
+    icon: <Contact size={36} />,
+    bgColor: 'bg-yellow-100',
+    iconColor: 'text-yellow-600',
+  },
+  {
+    name: 'LMS',
+    icon: <BookOpen size={36} />,
+    bgColor: 'bg-blue-100',
+    iconColor: 'text-blue-600',
+  },
+  {
+    name: 'CRM',
+    icon: <Users size={36} />,
+    bgColor: 'bg-indigo-100',
+    iconColor: 'text-indigo-600',
+  },
+  {
+    name: 'Calendar',
+    icon: <Calendar size={36} />,
+    bgColor: 'bg-rose-100',
+    iconColor: 'text-rose-600',
+  },
+  {
+    name: 'Discuss',
+    icon: <MessagesSquare size={36} />,
+    bgColor: 'bg-teal-100',
+    iconColor: 'text-teal-600',
+  },
+  {
+    name: 'Accounting',
+    icon: <FileText size={36} />,
+    bgColor: 'bg-green-100',
+    iconColor: 'text-green-600',
+  },
+  {
+    name: 'Sales',
+    icon: <ShoppingCart size={36} />,
+    bgColor: 'bg-purple-100',
+    iconColor: 'text-purple-600',
+  },
+  {
+    name: 'Inventory',
+    icon: <Warehouse size={36} />,
+    bgColor: 'bg-orange-100',
+    iconColor: 'text-orange-600',
+  },
+  {
+    name: 'Manufacturing',
+    icon: <Wrench size={36} />,
+    bgColor: 'bg-gray-200',
+    iconColor: 'text-gray-700',
+  },
+  {
+    name: 'Website',
+    icon: <MonitorPlay size={36} />,
+    bgColor: 'bg-fuchsia-100',
+    iconColor: 'text-fuchsia-600',
+  },
+  {
+    name: 'Point of Sale',
+    icon: <DollarSign size={36} />,
+    bgColor: 'bg-lime-100',
+    iconColor: 'text-lime-600',
+  },
+  {
+    name: 'Marketing',
+    icon: <Share2 size={36} />,
+    bgColor: 'bg-pink-100',
+    iconColor: 'text-pink-600',
+  },
+  {
+    name: 'To-do',
+    icon: <ClipboardList size={36} />,
+    bgColor: 'bg-blue-100',
+    iconColor: 'text-blue-600',
+  },
+  {
+    name: 'Reception',
+    icon: <ConciergeBell size={36} />,
+    bgColor: 'bg-emerald-100',
+    iconColor: 'text-emerald-600',
+  },
+  {
+    name: 'Settings',
+    icon: <Cog size={36} />,
+    bgColor: 'bg-slate-200',
+    iconColor: 'text-slate-600',
+  },
+  {
+    name: 'Access Control',
+    icon: <KeyRound size={36} />,
+    bgColor: 'bg-red-100',
+    iconColor: 'text-red-600',
+  },
+];
+
+export const STAFF_ROLES: UserRole[] = ['Admin', 'Employee'];
+
+const fullAccess: AppPermissions = { read: true, create: true, update: true, delete: true };
+const readOnly: AppPermissions = { read: true };
+
+const adminPermissions = ODOO_APPS.reduce((acc, app) => {
+    acc[app.name] = { ...fullAccess };
+    return acc;
+}, {} as { [appName: string]: AppPermissions });
+
+// Define default employee permissions more robustly.
+const employeeFullAccessApps = new Set(['Contacts', 'CRM', 'Calendar', 'Discuss', 'To-do', 'Reception', 'Sales', 'Marketing', 'LMS']);
+const employeeReadOnlyApps = new Set(['Dashboard', 'Accounting', 'Inventory', 'Manufacturing', 'Website', 'Point of Sale']);
+
+// Generate employee permissions object from the ODOO_APPS master list.
+// This ensures all apps are accounted for and prevents omissions.
+const employeePermissions: { [appName: string]: AppPermissions } = ODOO_APPS.reduce((acc, app) => {
+    if (employeeFullAccessApps.has(app.name)) {
+        acc[app.name] = { ...fullAccess };
+    } else if (employeeReadOnlyApps.has(app.name)) {
+        acc[app.name] = { ...readOnly };
+    }
+    // Apps not in either set (e.g., Settings, Access Control) are implicitly excluded, 
+    // giving them no default permissions, but they will still appear in the 'Manage' modal for an Admin.
+    return acc;
+}, {} as { [appName: string]: AppPermissions });
+
+export const DEFAULT_PERMISSIONS: Record<UserRole, { [appName: string]: AppPermissions }> = {
+  'Admin': adminPermissions,
+  'Employee': employeePermissions,
+  'Student': {
+    'LMS': readOnly,
+  },
+};
+
+export const DEFAULT_CHECKLIST: ChecklistItem[] = [
+  { id: 1, text: 'Submit High School Transcript', completed: false },
+  { id: 2, text: 'Complete Personal Statement', completed: false },
+  { id: 3, text: 'Pay Application Fee', completed: false },
+  { id: 4, text: 'Submit Letters of Recommendation', completed: false },
+  { id: 5, text: 'Pay SEVIS Fee', completed: false },
+];
+
+export const INITIAL_QUOTATION_TEMPLATES: QuotationTemplate[] = [];
