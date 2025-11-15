@@ -1,9 +1,12 @@
 
-import { Request, Response, NextFunction } from 'express';
+
+// FIX: Import Request, Response, NextFunction types from express
+import { type Request, type Response, type NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-key';
 
+// FIX: Extend express's Request type for type safety
 export interface AuthRequest extends Request {
     user?: {
         userId: number;

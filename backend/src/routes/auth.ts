@@ -1,5 +1,7 @@
 
-import express, { Request, Response } from 'express';
+
+// FIX: Import Request, Response types from express
+import express, { type Request, type Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';

@@ -1,5 +1,7 @@
 
-import express, { Response } from 'express';
+
+// FIX: Import Response type from express
+import express, { type Response } from 'express';
 import bcrypt from 'bcryptjs';
 import asyncHandler from 'express-async-handler';
 import prisma from '../lib/prisma';

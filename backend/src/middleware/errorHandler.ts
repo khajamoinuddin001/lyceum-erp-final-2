@@ -1,5 +1,7 @@
 
-import { Request, Response, NextFunction } from 'express';
+
+// FIX: Import Request, Response, NextFunction types from express
+import { type Request, type Response, type NextFunction } from 'express';
 import { ZodError } from 'zod';
 import { Prisma } from '@prisma/client';
 
@@ -10,7 +12,8 @@ export const errorHandler = (err: Error, req: Request, res: Response, next: Next
     if (err instanceof ZodError) {
         return res.status(400).json({
             message: 'Invalid request data.',
-            errors: err.errors.map(e => ({ path: e.path.join('.'), message: e.message })),
+            // FIX: ZodError uses `issues` property, not `errors`
+            errors: err.issues.map(e => ({ path: e.path.join('.'), message: e.message })),
         });
     }
 
