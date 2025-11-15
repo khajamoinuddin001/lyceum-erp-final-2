@@ -1,12 +1,11 @@
 
 
-// @ts-ignore
-const { PrismaClient } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
 
 
 // This prevents multiple instances of Prisma Client in development
 declare global {
-  var prisma: typeof PrismaClient | undefined;
+  var prisma: PrismaClient | undefined;
 }
 
 const prisma = global.prisma || new PrismaClient();

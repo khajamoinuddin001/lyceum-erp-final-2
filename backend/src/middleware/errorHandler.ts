@@ -1,19 +1,16 @@
 
 
-// FIX: Import Request, Response, NextFunction types from express
-import { Request, Response, NextFunction } from 'express';
+import express from 'express';
 import { ZodError } from 'zod';
-// @ts-ignore
-const { Prisma } = require('@prisma/client');
+import { Prisma } from '@prisma/client';
 
-export const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {
+export const errorHandler = (err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
     console.error(`[ERROR] ${new Date().toISOString()} - ${req.method} ${req.path}`);
     console.error(err);
 
     if (err instanceof ZodError) {
         return res.status(400).json({
             message: 'Invalid request data.',
-            // FIX: ZodError uses `issues` property, not `errors`
             errors: err.issues.map(e => ({ path: e.path.join('.'), message: e.message })),
         });
     }

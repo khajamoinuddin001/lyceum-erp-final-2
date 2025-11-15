@@ -1,7 +1,7 @@
 
 
 // FIX: Import Request, Response types from express
-import express, { Request, Response } from 'express';
+import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';
@@ -24,7 +24,7 @@ const authLimiter = rateLimit({
 });
 
 // POST /api/auth/register (For Students)
-router.post('/register', authLimiter, validate(registerSchema), asyncHandler(async (req: Request, res: Response) => {
+router.post('/register', authLimiter, validate(registerSchema), asyncHandler(async (req: express.Request, res: express.Response) => {
     const { name, email, password } = req.body;
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -66,7 +66,7 @@ router.post('/register', authLimiter, validate(registerSchema), asyncHandler(asy
 }));
 
 // POST /api/auth/login
-router.post('/login', authLimiter, validate(loginSchema), asyncHandler(async (req: Request, res: Response) => {
+router.post('/login', authLimiter, validate(loginSchema), asyncHandler(async (req: express.Request, res: express.Response) => {
     const { email, password } = req.body;
 
     const user = await prisma.user.findUnique({ where: { email } });

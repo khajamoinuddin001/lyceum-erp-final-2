@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // FIX: Import Request, Response, NextFunction types from express
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import authRoutes from './routes/auth';
@@ -22,7 +22,7 @@ app.use(cors()); // Enable Cross-Origin Resource Sharing
 app.use(express.json()); // To parse JSON bodies
 
 // --- Health Check Endpoint ---
-app.get('/api', (req: Request, res: Response) => {
+app.get('/api', (req: express.Request, res: express.Response) => {
   res.json({ message: 'Lyceum Academy API is running!' });
 });
 
