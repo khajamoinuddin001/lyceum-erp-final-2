@@ -1,6 +1,5 @@
 
-
-import express from 'express';
+import express, { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
 import prisma from '../../lib/prisma';
 import { AuthRequest } from '../../middleware/auth';
@@ -9,13 +8,15 @@ import type { Channel } from '../../../../types';
 const router = express.Router();
 
 // GET /api/data/discuss/channels
-router.get('/channels', asyncHandler(async (req: express.Request, res: express.Response) => {
+// FIX: Add explicit Request and Response types to the route handler.
+router.get('/channels', asyncHandler(async (req: Request, res: Response) => {
     const channels = await prisma.channel.findMany();
     res.json(channels);
 }));
 
 // POST /api/data/discuss/channels/group
-router.post('/channels/group', asyncHandler(async (req: AuthRequest, res: express.Response) => {
+// FIX: Add explicit AuthRequest and Response types to the route handler.
+router.post('/channels/group', asyncHandler(async (req: AuthRequest, res: Response) => {
     const { name, memberIds } = req.body;
     if (!name || !Array.isArray(memberIds) || memberIds.length === 0) {
         res.status(400).json({ message: 'Valid name and at least one member are required.' });
@@ -43,7 +44,8 @@ router.post('/channels/group', asyncHandler(async (req: AuthRequest, res: expres
 }));
 
 // PUT /api/data/discuss/channels
-router.put('/channels', asyncHandler(async (req: express.Request, res: express.Response) => {
+// FIX: Add explicit Request and Response types to the route handler.
+router.put('/channels', asyncHandler(async (req: Request, res: Response) => {
     const channels: Channel[] = req.body;
     if (!Array.isArray(channels)) {
         res.status(400).json({ message: 'Invalid data format.' });

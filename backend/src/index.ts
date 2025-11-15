@@ -2,8 +2,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-// FIX: Import Request, Response, NextFunction types from express
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import authRoutes from './routes/auth';
@@ -22,7 +21,8 @@ app.use(cors()); // Enable Cross-Origin Resource Sharing
 app.use(express.json()); // To parse JSON bodies
 
 // --- Health Check Endpoint ---
-app.get('/api', (req: express.Request, res: express.Response) => {
+// FIX: Added explicit Request and Response types from express.
+app.get('/api', (req: Request, res: Response) => {
   res.json({ message: 'Lyceum Academy API is running!' });
 });
 
@@ -31,9 +31,10 @@ app.get('/api', (req: express.Request, res: express.Response) => {
 app.use('/api/auth', authRoutes);
 
 // Protected routes (authentication is required)
-app.use('/api/data', authMiddleware, dataRoutes);
-app.use('/api/ai', authMiddleware, aiRoutes);
-app.use('/api/users', authMiddleware, usersRoutes);
+// FIX: Added explicit types to middleware functions to ensure type compatibility.
+app.use('/api/data', authMiddleware as (req: Request, res: Response, next: NextFunction) => any, dataRoutes);
+app.use('/api/ai', authMiddleware as (req: Request, res: Response, next: NextFunction) => any, aiRoutes);
+app.use('/api/users', authMiddleware as (req: Request, res: Response, next: NextFunction) => any, usersRoutes);
 
 // --- Error Handling Middleware ---
 // This must be the last piece of middleware added

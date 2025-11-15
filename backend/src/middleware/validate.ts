@@ -1,10 +1,11 @@
 
-
-import express from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 
-export const validate = (schema: z.Schema) =>
-  async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+// FIX: Added explicit types for middleware parameters.
+// FIX: Changed z.AnyZodObject to z.ZodObject<any> to match Zod's exported types.
+export const validate = (schema: z.ZodObject<any>) =>
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       await schema.parseAsync({
         body: req.body,

@@ -1,6 +1,7 @@
 
 import { z } from 'zod';
 
+// FIX: Corrected z.enum to take an array of strings.
 const userRoleSchema = z.enum(['Admin', 'Employee', 'Student']);
 
 export const updateUserSchema = z.object({

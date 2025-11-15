@@ -1,6 +1,5 @@
 
-
-import express from 'express';
+import express, { Response } from 'express';
 import bcrypt from 'bcryptjs';
 import asyncHandler from 'express-async-handler';
 import prisma from '../lib/prisma';
@@ -12,7 +11,8 @@ import { updateUserSchema, setInitialPasswordSchema, changePasswordSchema, updat
 const router = express.Router();
 
 // PUT /api/users/:id (for profile updates)
-router.put('/:id', validate(updateUserSchema), asyncHandler(async (req: AuthRequest, res: express.Response) => {
+// FIX: Add explicit AuthRequest and Response types to the route handler.
+router.put('/:id', validate(updateUserSchema), asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { name, email } = req.body;
     const requesterId = req.user?.userId;
@@ -34,7 +34,8 @@ router.put('/:id', validate(updateUserSchema), asyncHandler(async (req: AuthRequ
 }));
 
 // POST /api/users/set-initial-password
-router.post('/set-initial-password', validate(setInitialPasswordSchema), asyncHandler(async (req: AuthRequest, res: express.Response) => {
+// FIX: Add explicit AuthRequest and Response types to the route handler.
+router.post('/set-initial-password', validate(setInitialPasswordSchema), asyncHandler(async (req: AuthRequest, res: Response) => {
     const { newPassword } = req.body;
     const userId = req.user?.userId;
 
@@ -56,7 +57,8 @@ router.post('/set-initial-password', validate(setInitialPasswordSchema), asyncHa
 }));
 
 // POST /api/users/:userId/change-password
-router.post('/:userId/change-password', validate(changePasswordSchema), asyncHandler(async (req: AuthRequest, res: express.Response) => {
+// FIX: Add explicit AuthRequest and Response types to the route handler.
+router.post('/:userId/change-password', validate(changePasswordSchema), asyncHandler(async (req: AuthRequest, res: Response) => {
     const { userId } = req.params;
     const { current, newPass } = req.body;
     const requesterId = req.user?.userId;
@@ -90,7 +92,8 @@ router.post('/:userId/change-password', validate(changePasswordSchema), asyncHan
 }));
 
 // PUT /api/users/:userId/role
-router.put('/:userId/role', validate(updateUserRoleSchema), asyncHandler(async (req: AuthRequest, res: express.Response) => {
+// FIX: Add explicit AuthRequest and Response types to the route handler.
+router.put('/:userId/role', validate(updateUserRoleSchema), asyncHandler(async (req: AuthRequest, res: Response) => {
     if (req.user?.role !== 'Admin') {
         res.status(403).json({ message: 'Only admins can change roles.' });
         return;
@@ -118,7 +121,8 @@ router.put('/:userId/role', validate(updateUserRoleSchema), asyncHandler(async (
 }));
 
 // PUT /api/users/:userId/permissions
-router.put('/:userId/permissions', validate(updateUserPermissionsSchema), asyncHandler(async (req: AuthRequest, res: express.Response) => {
+// FIX: Add explicit AuthRequest and Response types to the route handler.
+router.put('/:userId/permissions', validate(updateUserPermissionsSchema), asyncHandler(async (req: AuthRequest, res: Response) => {
      if (req.user?.role !== 'Admin') {
         res.status(403).json({ message: 'Only admins can change permissions.' });
         return;
@@ -138,7 +142,8 @@ router.put('/:userId/permissions', validate(updateUserPermissionsSchema), asyncH
 }));
 
 // POST /api/users (Add new staff)
-router.post('/', validate(createUserSchema), asyncHandler(async (req: AuthRequest, res: express.Response) => {
+// FIX: Add explicit AuthRequest and Response types to the route handler.
+router.post('/', validate(createUserSchema), asyncHandler(async (req: AuthRequest, res: Response) => {
     if (req.user?.role !== 'Admin') {
         res.status(403).json({ message: 'Only admins can add new users.' });
         return;

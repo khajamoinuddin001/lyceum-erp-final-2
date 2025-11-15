@@ -1,6 +1,5 @@
 
-
-import express from 'express';
+import express, { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
 import prisma from '../../lib/prisma';
 import { validate } from '../../middleware/validate';
@@ -9,13 +8,15 @@ import { checkInSchema, scheduleVisitorSchema, updateVisitorSchema } from '../..
 const router = express.Router();
 
 // GET /api/data/reception/visitors
-router.get('/visitors', asyncHandler(async (req: express.Request, res: express.Response) => {
+// FIX: Add explicit Request and Response types to the route handler.
+router.get('/visitors', asyncHandler(async (req: Request, res: Response) => {
     const visitors = await prisma.visitor.findMany({ orderBy: { scheduledCheckIn: 'desc' } });
     res.json(visitors);
 }));
 
 // POST /api/data/reception/visitors/check-in
-router.post('/visitors/check-in', validate(checkInSchema), asyncHandler(async (req: express.Request, res: express.Response) => {
+// FIX: Add explicit Request and Response types to the route handler.
+router.post('/visitors/check-in', validate(checkInSchema), asyncHandler(async (req: Request, res: Response) => {
     const { name, company, host, cardNumber } = req.body;
     await prisma.visitor.create({
         data: {
@@ -30,7 +31,8 @@ router.post('/visitors/check-in', validate(checkInSchema), asyncHandler(async (r
 }));
 
 // PUT /api/data/reception/visitors/:id
-router.put('/visitors/:id', validate(updateVisitorSchema), asyncHandler(async (req: express.Request, res: express.Response) => {
+// FIX: Add explicit Request and Response types to the route handler.
+router.put('/visitors/:id', validate(updateVisitorSchema), asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
     const { name, company, host, cardNumber } = req.body;
     await prisma.visitor.update({
@@ -42,7 +44,8 @@ router.put('/visitors/:id', validate(updateVisitorSchema), asyncHandler(async (r
 }));
 
 // POST /api/data/reception/visitors/:id/checkout
-router.post('/visitors/:id/checkout', asyncHandler(async (req: express.Request, res: express.Response) => {
+// FIX: Add explicit Request and Response types to the route handler.
+router.post('/visitors/:id/checkout', asyncHandler(async (req: Request, res: Response) => {
     const checkedOutVisitor = await prisma.visitor.update({
         where: { id: parseInt(req.params.id) },
         data: { status: 'CheckedOut', checkOut: new Date().toISOString() }
@@ -52,7 +55,8 @@ router.post('/visitors/:id/checkout', asyncHandler(async (req: express.Request, 
 }));
 
 // POST /api/data/reception/visitors/schedule
-router.post('/visitors/schedule', validate(scheduleVisitorSchema), asyncHandler(async (req: express.Request, res: express.Response) => {
+// FIX: Add explicit Request and Response types to the route handler.
+router.post('/visitors/schedule', validate(scheduleVisitorSchema), asyncHandler(async (req: Request, res: Response) => {
     const { scheduledCheckIn } = req.body;
     if (new Date(scheduledCheckIn) < new Date()) {
         res.status(400).json({ message: 'Scheduled time cannot be in the past.' });
@@ -64,7 +68,8 @@ router.post('/visitors/schedule', validate(scheduleVisitorSchema), asyncHandler(
 }));
 
 // POST /api/data/reception/visitors/:id/check-in
-router.post('/visitors/:id/check-in', asyncHandler(async (req: express.Request, res: express.Response) => {
+// FIX: Add explicit Request and Response types to the route handler.
+router.post('/visitors/:id/check-in', asyncHandler(async (req: Request, res: Response) => {
     const checkedInVisitor = await prisma.visitor.update({
         where: { id: parseInt(req.params.id) },
         data: { status: 'CheckedIn', checkIn: new Date().toISOString() }

@@ -1,19 +1,20 @@
 
-
-import express from 'express';
+import express, { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
 import prisma from '../../lib/prisma';
 
 const router = express.Router();
 
 // GET /api/data/accounting/transactions
-router.get('/transactions', asyncHandler(async (req: express.Request, res: express.Response) => {
+// FIX: Add explicit Request and Response types to the route handler.
+router.get('/transactions', asyncHandler(async (req: Request, res: Response) => {
     const transactions = await prisma.accountingTransaction.findMany({ orderBy: { date: 'desc' } });
     res.json(transactions);
 }));
 
 // POST /api/data/accounting/invoices
-router.post('/invoices', asyncHandler(async (req: express.Request, res: express.Response) => {
+// FIX: Add explicit Request and Response types to the route handler.
+router.post('/invoices', asyncHandler(async (req: Request, res: Response) => {
     const { customerName, amount, ...rest } = req.body;
     // Further validation could be added with Zod
     if (!customerName || typeof amount !== 'number' || amount <= 0) {
@@ -26,7 +27,8 @@ router.post('/invoices', asyncHandler(async (req: express.Request, res: express.
 }));
 
 // POST /api/data/accounting/invoices/:id/record-payment
-router.post('/invoices/:id/record-payment', asyncHandler(async (req: express.Request, res: express.Response) => {
+// FIX: Add explicit Request and Response types to the route handler.
+router.post('/invoices/:id/record-payment', asyncHandler(async (req: Request, res: Response) => {
     const paidTransaction = await prisma.accountingTransaction.update({ where: { id: req.params.id }, data: { status: 'Paid' } });
     const allTransactions = await prisma.accountingTransaction.findMany({ orderBy: { date: 'desc' } });
     res.json({ allTransactions, paidTransaction });
