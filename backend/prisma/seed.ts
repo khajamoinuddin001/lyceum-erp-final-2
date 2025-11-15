@@ -1,6 +1,7 @@
 
 
-import { PrismaClient } from '@prisma/client';
+// FIX: Replaced import with require to work around potential module resolution or type generation issues.
+const { PrismaClient } = require('@prisma/client');
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();

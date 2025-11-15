@@ -1,8 +1,12 @@
 
 import { z } from 'zod';
 
-// FIX: Corrected z.enum to take an array of strings.
-const userRoleSchema = z.enum(['Admin', 'Employee', 'Student']);
+// FIX: Replaced z.enum with z.union of z.literals for robustness against Zod version differences.
+const userRoleSchema = z.union([
+    z.literal('Admin'),
+    z.literal('Employee'),
+    z.literal('Student'),
+]);
 
 export const updateUserSchema = z.object({
     params: z.object({

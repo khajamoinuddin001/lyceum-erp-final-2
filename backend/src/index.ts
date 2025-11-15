@@ -31,10 +31,10 @@ app.get('/api', (req: Request, res: Response) => {
 app.use('/api/auth', authRoutes);
 
 // Protected routes (authentication is required)
-// FIX: Added explicit types to middleware functions to ensure type compatibility.
-app.use('/api/data', authMiddleware as (req: Request, res: Response, next: NextFunction) => any, dataRoutes);
-app.use('/api/ai', authMiddleware as (req: Request, res: Response, next: NextFunction) => any, aiRoutes);
-app.use('/api/users', authMiddleware as (req: Request, res: Response, next: NextFunction) => any, usersRoutes);
+// FIX: Removed explicit casting as it can hide underlying type issues. The middleware and routes should be type-compatible.
+app.use('/api/data', authMiddleware, dataRoutes);
+app.use('/api/ai', authMiddleware, aiRoutes);
+app.use('/api/users', authMiddleware, usersRoutes);
 
 // --- Error Handling Middleware ---
 // This must be the last piece of middleware added
