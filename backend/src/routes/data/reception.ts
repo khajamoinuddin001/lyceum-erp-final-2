@@ -1,7 +1,7 @@
 
 
 // FIX: Import Request, Response types from express
-import express, { type Request, type Response } from 'express';
+import express, { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
 import prisma from '../../lib/prisma';
 import { validate } from '../../middleware/validate';

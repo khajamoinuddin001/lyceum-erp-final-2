@@ -1,9 +1,10 @@
 
 
 // FIX: Import Request, Response, NextFunction types from express
-import { type Request, type Response, type NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
-import { Prisma } from '@prisma/client';
+// @ts-ignore
+const { Prisma } = require('@prisma/client');
 
 export const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {
     console.error(`[ERROR] ${new Date().toISOString()} - ${req.method} ${req.path}`);

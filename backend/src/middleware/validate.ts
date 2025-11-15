@@ -1,7 +1,7 @@
 
 
 // FIX: Import Request, Response, NextFunction types from express
-import { type Request, type Response, type NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 
 // FIX: Use a more generic Zod Schema type to avoid version/import issues with AnyZodObject

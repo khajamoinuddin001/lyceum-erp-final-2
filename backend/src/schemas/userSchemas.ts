@@ -1,3 +1,4 @@
+
 import { z } from 'zod';
 
 const userRoleSchema = z.enum(['Admin', 'Employee', 'Student']);
@@ -53,10 +54,10 @@ export const updateUserPermissionsSchema = z.object({
 
 export const createUserSchema = z.object({
   body: z.object({
-    name: z.string().min(2),
+    name: z.string().min(2, 'Name must be at least 2 characters'),
     email: z.string().email(),
     role: userRoleSchema,
-    password: z.string().min(1), // Temporary password
+    password: z.string().min(1, 'Password is required'), // Temporary password
     mustResetPassword: z.boolean().optional(),
   }),
 });
