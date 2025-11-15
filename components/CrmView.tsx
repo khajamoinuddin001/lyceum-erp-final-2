@@ -1,8 +1,7 @@
-
-
 import React, { useState, useMemo } from 'react';
 import type { CrmLead, CrmStage, User } from '../types';
 import { IndianRupee, Building2, User as UserIcon, GripVertical, Filter } from './icons';
+import { useData } from '../hooks/useData';
 
 const STAGES: CrmStage[] = ['New', 'Qualified', 'Proposal', 'Won', 'Lost'];
 
@@ -13,14 +12,6 @@ const stageColorClasses: { [key in CrmStage]: string } = {
     Won: 'border-t-green-500',
     Lost: 'border-t-red-500',
 };
-
-interface CrmViewProps {
-    leads: CrmLead[];
-    onLeadSelect: (lead: CrmLead) => void;
-    onNewLeadClick: () => void;
-    onUpdateLeadStage: (leadId: number, newStage: CrmStage) => void;
-    user: User;
-}
 
 const getInitials = (name: string = '') => {
     if (!name) return '';
@@ -110,9 +101,20 @@ const LeadCard: React.FC<{ lead: CrmLead; onSelect: (lead: CrmLead) => void; dra
 )};
 
 
-const CrmView: React.FC<CrmViewProps> = ({ leads, onLeadSelect, onNewLeadClick, onUpdateLeadStage, user }) => {
+const CrmView: React.FC = () => {
+    const { state, handleSave, updateLeadStage } = useData();
+    const { leads, currentUser: user } = state;
     const [dragOverStage, setDragOverStage] = useState<CrmStage | null>(null);
     const [agentFilter, setAgentFilter] = useState('All Agents');
+
+    const onLeadSelect = (lead: CrmLead) => handleSave('selectedLead', lead);
+    const onNewLeadClick = () => {
+        handleSave('editingLead', 'new');
+        handleSave('isNewLeadModalOpen', true);
+    }
+    const onUpdateLeadStage = (leadId: number, newStage: CrmStage) => updateLeadStage(leadId, newStage);
+
+    if (!user) return null;
     const canUpdate = !!user.permissions?.['CRM']?.update;
 
     const uniqueAgents = useMemo(() => ['All Agents', ...Array.from(new Set(leads.map(l => l.assignedTo).filter(Boolean))) as string[]], [leads]);

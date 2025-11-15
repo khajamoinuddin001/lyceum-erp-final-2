@@ -1,17 +1,8 @@
-
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, X, Contact as ContactIcon, Users as CrmIcon } from './icons';
 import { ODOO_APPS } from './constants';
 import type { OdooApp, Contact, CrmLead } from '../types';
-
-interface SearchModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  contacts: Contact[];
-  leads: CrmLead[];
-  onResultSelect: (result: { type: string; id: any }) => void;
-}
+import { useData } from '../hooks/useData';
 
 const highlightMatch = (text: string, query: string): React.ReactNode => {
   if (!query.trim() || !text) {
@@ -42,11 +33,14 @@ interface CategorizedResults {
     leads: CrmLead[];
 }
 
-
-const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, contacts, leads, onResultSelect }) => {
+const SearchModal: React.FC = () => {
+  const { state, handleSave, handleSearchResultSelect } = useData();
+  const { isSearchOpen: isOpen, contacts, leads } = state;
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<CategorizedResults>({ apps: [], contacts: [], leads: [] });
+
+  const onClose = () => handleSave('isSearchOpen', false);
 
   useEffect(() => {
     if (isOpen) {
@@ -141,7 +135,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, contacts, le
                   <li className="px-3 pt-3 pb-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Applications</li>
                   {results.apps.map(app => (
                     <li key={app.name}>
-                        <button onClick={() => onResultSelect({ type: 'app', id: app.name })} className="flex items-center p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors w-full text-left">
+                        <button onClick={() => handleSearchResultSelect({ type: 'app', id: app.name })} className="flex items-center p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors w-full text-left">
                             <div className={`w-10 h-10 rounded-md flex items-center justify-center ${app.bgColor} dark:bg-opacity-20 mr-4 flex-shrink-0`}>
                                 <span className={`${app.iconColor} w-6 h-6`}>{React.cloneElement(app.icon, { size: 24 })}</span>
                             </div>
@@ -156,7 +150,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, contacts, le
                   <li className="px-3 pt-3 pb-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Contacts</li>
                   {results.contacts.map(contact => (
                     <li key={`contact-${contact.id}`}>
-                        <button onClick={() => onResultSelect({ type: 'contact', id: contact.id })} className="flex items-center p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors w-full text-left">
+                        <button onClick={() => handleSearchResultSelect({ type: 'contact', id: contact.id })} className="flex items-center p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors w-full text-left">
                             <div className="w-10 h-10 rounded-md flex items-center justify-center bg-yellow-100 dark:bg-yellow-900/50 mr-4 flex-shrink-0">
                                 <ContactIcon size={24} className="text-yellow-600 dark:text-yellow-300" />
                             </div>
@@ -174,7 +168,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, contacts, le
                   <li className="px-3 pt-3 pb-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Leads</li>
                   {results.leads.map(lead => (
                     <li key={`lead-${lead.id}`}>
-                        <button onClick={() => onResultSelect({ type: 'lead', id: lead.id })} className="flex items-center p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors w-full text-left">
+                        <button onClick={() => handleSearchResultSelect({ type: 'lead', id: lead.id })} className="flex items-center p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors w-full text-left">
                             <div className="w-10 h-10 rounded-md flex items-center justify-center bg-indigo-100 dark:bg-indigo-900/50 mr-4 flex-shrink-0">
                                 <CrmIcon size={24} className="text-indigo-600 dark:text-indigo-300" />
                             </div>

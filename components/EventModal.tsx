@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { X, Trash2 } from './icons';
 import type { CalendarEvent, User } from '../types';
@@ -106,10 +107,15 @@ const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave, onDele
   const labelClasses = "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1";
   
   return (
-    <div className="fixed inset-0 bg-gray-900 bg-opacity-60 z-50 flex justify-center items-center p-4">
+    <div
+      className="fixed inset-0 bg-gray-900 bg-opacity-60 z-50 flex justify-center items-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="event-modal-title"
+    >
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">{isNew ? 'New Event' : 'Edit Event'}</h2>
+          <h2 id="event-modal-title" className="text-lg font-semibold text-gray-800 dark:text-gray-100">{isNew ? 'New Event' : 'Edit Event'}</h2>
           <button onClick={handleClose} className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"><X size={24} /></button>
         </div>
         <div className="p-6 space-y-4">

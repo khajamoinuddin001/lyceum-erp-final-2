@@ -18,7 +18,12 @@
     "bcryptjs": "^3.0.3",
     "jsonwebtoken": "^9.0.2",
     "@google/genai": "^1.29.1",
-    "@prisma/client": "^6.19.0"
+    "@prisma/client": "^6.19.0",
+    "process": "^0.11.10",
+    "zod": "^4.1.12",
+    "helmet": "^8.1.0",
+    "express-async-handler": "^1.2.0",
+    "express-rate-limit": "^8.2.1"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

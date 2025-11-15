@@ -1,18 +1,8 @@
-
-
 import React, { useState, useRef, useEffect, forwardRef } from 'react';
 import { Search, Plus, X, ArrowLeft, Paperclip, CheckCheck, MessageCircle, Send, Edit, ChevronUp, ChevronDown } from './icons';
 import type { User, Channel, Message } from '../types';
 import NewGroupModal from './NewGroupModal';
-
-interface DiscussViewProps {
-  user: User;
-  users: User[];
-  isMobile: boolean;
-  channels: Channel[];
-  setChannels: (value: Channel[] | ((val: Channel[]) => Channel[])) => void;
-  onCreateGroup: (name: string, memberIds: number[]) => void;
-}
+import { useData } from '../hooks/useData';
 
 const avatarColors = [
   'bg-red-200 text-red-800 dark:bg-red-900/50 dark:text-red-300', 'bg-blue-200 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
@@ -185,7 +175,9 @@ const NewChatModal: React.FC<{
 };
 
 
-const DiscussView: React.FC<DiscussViewProps> = ({ user, users, isMobile, channels, setChannels, onCreateGroup }) => {
+const DiscussView: React.FC = () => {
+    const { state, setChannels, createGroupChannel: onCreateGroup } = useData();
+    const { currentUser: user, users, isMobile, channels } = state;
     const [activeChannelId, setActiveChannelId] = useState<string>('general');
     const [newMessage, setNewMessage] = useState('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -209,6 +201,8 @@ const DiscussView: React.FC<DiscussViewProps> = ({ user, users, isMobile, channe
     const messageRefs = useRef<Record<number, HTMLDivElement | null>>({});
     
     const [isBotTyping, setIsBotTyping] = useState(false);
+
+    if (!user) return null;
     
     const activeChannel = channels.find(c => c.id === activeChannelId);
     const isAdmin = user.role === 'Admin';
@@ -432,7 +426,6 @@ const DiscussView: React.FC<DiscussViewProps> = ({ user, users, isMobile, channe
                     {activeChannel.messages.map(msg => (
                         <MessageBubble
                             key={msg.id}
-                            // FIX: The ref callback function was implicitly returning a value, which is not allowed. Changed to a block body to ensure a void return type.
                             ref={el => { messageRefs.current[msg.id] = el; }}
                             message={msg}
                             isCurrentUser={msg.author === user.name}

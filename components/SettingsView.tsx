@@ -3,24 +3,7 @@ import { ArrowLeft, Bell, FileText, Edit, Trash2, Plus, User as UserIcon, Lock, 
 import type { QuotationTemplate, User, Coupon, LmsCourse } from '../types';
 import QuotationTemplateModal from './QuotationTemplateModal';
 import CouponEditModal from './CouponEditModal';
-
-// PROPS
-interface SettingsViewProps {
-  user: User;
-  onNavigateBack: () => void;
-  quotationTemplates: QuotationTemplate[];
-  onSaveTemplate: (template: QuotationTemplate) => void;
-  onDeleteTemplate: (templateId: number) => void;
-  onUpdateProfile: (userId: number, name: string, email: string) => void;
-  // FIX: Updated the onChangePassword prop type to return a Promise, matching the async function in App.tsx.
-  onChangePassword: (userId: number, current: string, newPass: string) => Promise<{ success: boolean; message: string; }>;
-  darkMode: boolean;
-  setDarkMode: (value: boolean | ((val: boolean) => boolean)) => void;
-  coupons: Coupon[];
-  onSaveCoupon: (coupon: Coupon) => void;
-  onDeleteCoupon: (couponCode: string) => void;
-  courses: LmsCourse[];
-}
+import { useData } from '../hooks/useData';
 
 type Tab = 'Profile' | 'Security' | 'Appearance' | 'Notifications' | 'Templates' | 'Coupons';
 
@@ -37,7 +20,7 @@ const inputClasses = "w-full px-3 py-2 border border-gray-300 rounded-md shadow-
 const labelClasses = "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1";
 
 // #region TAB COMPONENTS
-const ProfileTab: React.FC<Pick<SettingsViewProps, 'user' | 'onUpdateProfile'>> = ({ user, onUpdateProfile }) => {
+const ProfileTab: React.FC<{ user: User, onUpdateProfile: (userId: number, name: string, email: string) => void }> = ({ user, onUpdateProfile }) => {
     const [name, setName] = useState(user.name);
     const [email, setEmail] = useState(user.email);
     const [message, setMessage] = useState('');
@@ -75,7 +58,7 @@ const ProfileTab: React.FC<Pick<SettingsViewProps, 'user' | 'onUpdateProfile'>> 
     );
 };
 
-const SecurityTab: React.FC<Pick<SettingsViewProps, 'user' | 'onChangePassword'>> = ({ user, onChangePassword }) => {
+const SecurityTab: React.FC<{ user: User, onChangePassword: (userId: number, current: string, newPass: string) => Promise<{ success: boolean; message: string; }> }> = ({ user, onChangePassword }) => {
     const [passwords, setPasswords] = useState({ current: '', newPass: '', confirm: '' });
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
     
@@ -183,7 +166,9 @@ const NotificationsTab: React.FC = () => {
     );
 };
 
-const TemplatesTab: React.FC<Pick<SettingsViewProps, 'quotationTemplates' | 'onSaveTemplate' | 'onDeleteTemplate'>> = ({ quotationTemplates, onSaveTemplate, onDeleteTemplate }) => {
+const TemplatesTab: React.FC = () => {
+    const { state, saveQuotationTemplate, deleteQuotationTemplate } = useData();
+    const { quotationTemplates } = state;
     const [editingTemplate, setEditingTemplate] = useState<QuotationTemplate | 'new' | null>(null);
 
     return (
@@ -214,7 +199,7 @@ const TemplatesTab: React.FC<Pick<SettingsViewProps, 'quotationTemplates' | 'onS
                                     <Edit size={16} />
                                 </button>
                                 <button
-                                onClick={() => { if(window.confirm(`Are you sure you want to delete "${template.title}"?`)) onDeleteTemplate(template.id) }}
+                                onClick={() => { if(window.confirm(`Are you sure you want to delete "${template.title}"?`)) deleteQuotationTemplate(template.id) }}
                                 className="p-2 text-gray-500 hover:text-red-500 rounded-md"
                                 aria-label={`Delete ${template.title}`}
                                 >
@@ -230,7 +215,7 @@ const TemplatesTab: React.FC<Pick<SettingsViewProps, 'quotationTemplates' | 'onS
                     template={editingTemplate === 'new' ? null : editingTemplate}
                     onClose={() => setEditingTemplate(null)}
                     onSave={(template) => {
-                        onSaveTemplate(template);
+                        saveQuotationTemplate(template);
                         setEditingTemplate(null);
                     }}
                 />
@@ -239,7 +224,9 @@ const TemplatesTab: React.FC<Pick<SettingsViewProps, 'quotationTemplates' | 'onS
     );
 };
 
-const CouponsTab: React.FC<Pick<SettingsViewProps, 'coupons' | 'onSaveCoupon' | 'onDeleteCoupon' | 'courses'>> = ({ coupons, onSaveCoupon, onDeleteCoupon, courses }) => {
+const CouponsTab: React.FC = () => {
+    const { state, saveCoupon, deleteCoupon } = useData();
+    const { coupons, lmsCourses: courses } = state;
     const [editingCoupon, setEditingCoupon] = useState<Coupon | 'new' | null>(null);
 
     return (
@@ -283,7 +270,7 @@ const CouponsTab: React.FC<Pick<SettingsViewProps, 'coupons' | 'onSaveCoupon' | 
                                         <Edit size={16} />
                                     </button>
                                     <button
-                                        onClick={() => onDeleteCoupon(coupon.code)}
+                                        onClick={() => deleteCoupon(coupon.code)}
                                         className="p-2 text-gray-500 hover:text-red-500 rounded-md"
                                         aria-label={`Delete ${coupon.code}`}
                                     >
@@ -300,7 +287,7 @@ const CouponsTab: React.FC<Pick<SettingsViewProps, 'coupons' | 'onSaveCoupon' | 
                     coupon={editingCoupon === 'new' ? null : editingCoupon}
                     onClose={() => setEditingCoupon(null)}
                     onSave={(coupon) => {
-                        onSaveCoupon(coupon);
+                        saveCoupon(coupon);
                         setEditingCoupon(null);
                     }}
                     courses={courses}
@@ -312,17 +299,21 @@ const CouponsTab: React.FC<Pick<SettingsViewProps, 'coupons' | 'onSaveCoupon' | 
 
 // #endregion
 
-const SettingsView: React.FC<SettingsViewProps> = (props) => {
-  const [activeTab, setActiveTab] = useState<Tab>('Profile');
+const SettingsView: React.FC = () => {
+    const { state, handleAppSelect, handleUpdateProfile, handleChangePassword } = useData();
+    const { currentUser: user } = state;
+    const [activeTab, setActiveTab] = useState<Tab>('Profile');
+
+    if (!user) return null;
 
   const renderContent = () => {
       switch(activeTab) {
-          case 'Profile': return <ProfileTab user={props.user} onUpdateProfile={props.onUpdateProfile} />;
-          case 'Security': return <SecurityTab user={props.user} onChangePassword={props.onChangePassword} />;
+          case 'Profile': return <ProfileTab user={user} onUpdateProfile={handleUpdateProfile} />;
+          case 'Security': return <SecurityTab user={user} onChangePassword={handleChangePassword} />;
           case 'Appearance': return <AppearanceTab />;
           case 'Notifications': return <NotificationsTab />;
-          case 'Templates': return <TemplatesTab {...props} />;
-          case 'Coupons': return <CouponsTab {...props} />;
+          case 'Templates': return <TemplatesTab />;
+          case 'Coupons': return <CouponsTab />;
           default: return null;
       }
   };
@@ -330,7 +321,7 @@ const SettingsView: React.FC<SettingsViewProps> = (props) => {
   return (
     <div className="animate-fade-in max-w-5xl mx-auto">
         <button
-            onClick={props.onNavigateBack}
+            onClick={() => handleAppSelect('Apps')}
             className="flex items-center text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-lyceum-blue mb-4 transition-colors"
             aria-label="Back to apps"
         >

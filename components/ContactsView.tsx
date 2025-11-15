@@ -1,16 +1,14 @@
+
+
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import type { Contact, User } from '../types';
 import { Search, Filter } from './icons';
 import ContactCard from './StudentCard';
+import { useData } from '../hooks/useData';
 
-interface ContactsViewProps {
-  contacts: Contact[];
-  onNewContactClick: () => void;
-  onContactSelect: (contact: Contact) => void;
-  user: User;
-}
-
-const ContactsView: React.FC<ContactsViewProps> = ({ contacts, onNewContactClick, onContactSelect, user }) => {
+const ContactsView: React.FC = () => {
+  const { state, handleSave } = useData();
+  const { contacts, currentUser: user } = state;
   const [searchQuery, setSearchQuery] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('All Departments');
   const [majorFilter, setMajorFilter] = useState('All Majors');
@@ -18,6 +16,14 @@ const ContactsView: React.FC<ContactsViewProps> = ({ contacts, onNewContactClick
   const [selectedContacts, setSelectedContacts] = useState<Set<number>>(new Set());
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const filterRef = useRef<HTMLDivElement>(null);
+
+  const onNewContactClick = () => handleSave('editingContact', 'new');
+  const onContactSelect = (contact: Contact) => {
+    handleSave('editingContact', contact);
+    handleSave('contactViewMode', 'details');
+  };
+
+  if (!user) return null;
 
   const allDepartments = useMemo(() => {
     const departments = new Set(contacts.map(s => s.department));
@@ -165,7 +171,7 @@ const ContactsView: React.FC<ContactsViewProps> = ({ contacts, onNewContactClick
                                     onChange={(e) => setDepartmentFilter(e.target.value)}
                                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-lyceum-blue focus:border-lyceum-blue sm:text-sm"
                                 >
-                                {allDepartments.map(department => <option key={department} value={department}>{department}</option>)}
+                                {allDepartments.map((department: string) => <option key={department} value={department}>{department}</option>)}
                                 </select>
                             </div>
                             <div>
@@ -175,7 +181,7 @@ const ContactsView: React.FC<ContactsViewProps> = ({ contacts, onNewContactClick
                                     onChange={(e) => setMajorFilter(e.target.value)}
                                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-lyceum-blue focus:border-lyceum-blue sm:text-sm"
                                 >
-                                {allMajors.map(major => <option key={major} value={major}>{major}</option>)}
+                                {allMajors.map((major: string) => <option key={major} value={major}>{major}</option>)}
                                 </select>
                             </div>
                             <div>

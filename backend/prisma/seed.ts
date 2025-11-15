@@ -1,5 +1,5 @@
-// FIX: Changed require to import for PrismaClient to resolve module resolution issues with TypeScript.
-const { PrismaClient } = require('@prisma/client');
+
+import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -137,8 +137,7 @@ async function main() {
 main()
     .catch((e) => {
         console.error(e);
-        // FIX: Cast `process` to `any` to access the `exit` method, which is not available in the default Process type without @types/node.
-        (process as any).exit(1);
+        process.exit(1);
     })
     .finally(async () => {
         await prisma.$disconnect();

@@ -1,20 +1,9 @@
-
 import React, { useState, useMemo } from 'react';
 import KpiCard from './KpiCard';
 import WelcomeHeader from './WelcomeHeader';
 import { ArrowLeft, Circle, Clock, CheckCircle2, FileText, IndianRupee, Users, TrendingUp, ClipboardList } from './icons';
 import type { AccountingTransaction, User, TodoTask, TodoStatus, PaymentActivityLog, Contact, CrmLead } from '../types';
-
-interface DashboardProps {
-  onNavigateBack: () => void;
-  transactions: AccountingTransaction[];
-  user: User;
-  tasks: TodoTask[];
-  onAppSelect: (appName: string) => void;
-  paymentActivityLog: PaymentActivityLog[];
-  contacts: Contact[];
-  leads: CrmLead[];
-}
+import { useData } from '../hooks/useData';
 
 const statusConfig: { [key in TodoStatus]: { icon: React.ReactNode } } = {
   todo: {
@@ -58,8 +47,12 @@ const formatTimeAgo = (isoString: string) => {
 }
 
 
-const Dashboard: React.FC<DashboardProps> = ({ onNavigateBack, transactions, user, tasks, onAppSelect, paymentActivityLog, contacts, leads }) => {
+const Dashboard: React.FC = () => {
+  const { state, handleAppSelect } = useData();
+  const { transactions, currentUser: user, tasks, paymentActivityLog, contacts, leads } = state;
   const [chartView, setChartView] = useState<'weekly' | 'monthly'>('weekly');
+
+  const onNavigateBack = () => handleAppSelect('Apps');
   
   const dynamicKpis = useMemo(() => {
     const sevenDaysAgo = new Date();
@@ -173,6 +166,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigateBack, transactions, use
     return paymentActivityLog.slice(0, 5);
   }, [paymentActivityLog]);
 
+  if (!user) return null;
+
   return (
     <div className="animate-fade-in space-y-6">
         <button
@@ -244,7 +239,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigateBack, transactions, use
                         Your Tasks
                     </h2>
                     <button
-                        onClick={() => onAppSelect('To-do')}
+                        onClick={() => handleAppSelect('To-do')}
                         className="text-sm font-medium text-lyceum-blue hover:underline"
                     >
                         View All
@@ -281,7 +276,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigateBack, transactions, use
                         Recent Payment Activity
                     </h2>
                     <button
-                        onClick={() => onAppSelect('Accounting')}
+                        onClick={() => handleAppSelect('Accounting')}
                         className="text-sm font-medium text-lyceum-blue hover:underline"
                     >
                         View All

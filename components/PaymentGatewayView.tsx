@@ -56,7 +56,7 @@ const PaymentGatewayView: React.FC<PaymentGatewayViewProps> = ({ course, user, c
         setError('');
 
         const options = {
-            key: 'rzp_test_YOUR_KEY_ID', 
+            key: process.env.RAZORPAY_KEY_ID as string, // Use environment variable for security
             amount: finalPrice * 100, 
             currency: 'INR',
             name: 'Lyceum Academy',

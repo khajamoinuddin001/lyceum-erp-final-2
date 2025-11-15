@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import type { LmsCourse, User, Contact } from '../types';
-import { BookOpen, Plus, MoreHorizontal, Edit, Trash2, IndianRupee } from './icons';
+import { BookOpen, Plus, MoreHorizontal, Edit, Trash2, IndianRupee, Users } from './icons';
 
 interface LmsViewProps {
   courses: LmsCourse[];
@@ -25,7 +25,8 @@ const CourseCard: React.FC<{
     isStudent: boolean;
     isEnrolled: boolean;
     onPurchase: () => void;
-}> = ({ course, progress, onSelect, onEdit, onDelete, isAdmin, isStudent, isEnrolled, onPurchase }) => {
+    enrolledCount: number;
+}> = ({ course, progress, onSelect, onEdit, onDelete, isAdmin, isStudent, isEnrolled, onPurchase, enrolledCount }) => {
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
@@ -79,24 +80,34 @@ const CourseCard: React.FC<{
                 <p className="text-xs text-gray-500 dark:text-gray-500">Instructor: {course.instructor}</p>
             </div>
             
-            {isStudent && !isEnrolled && course.price !== undefined ? (
-                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                    <p className="text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center">
-                        <IndianRupee size={20} className="mr-1 text-gray-500 dark:text-gray-400" />
-                        {course.price.toLocaleString('en-IN')}
-                    </p>
-                    <button onClick={(e) => { e.stopPropagation(); onPurchase(); }} className="px-4 py-2 bg-lyceum-blue text-white rounded-md shadow-sm text-sm font-semibold hover:bg-lyceum-blue-dark">
-                        Buy Now
-                    </button>
-                </div>
+            {isStudent ? (
+                !isEnrolled && course.price !== undefined ? (
+                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                        <p className="text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center">
+                            <IndianRupee size={20} className="mr-1 text-gray-500 dark:text-gray-400" />
+                            {course.price.toLocaleString('en-IN')}
+                        </p>
+                        <button onClick={(e) => { e.stopPropagation(); onPurchase(); }} className="px-4 py-2 bg-lyceum-blue text-white rounded-md shadow-sm text-sm font-semibold hover:bg-lyceum-blue-dark">
+                            Buy Now
+                        </button>
+                    </div>
+                ) : (
+                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <div className="flex justify-between items-center mb-1">
+                            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Progress</span>
+                            <span className="text-xs font-semibold text-lyceum-blue">{Math.round(progress)}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                            <div className="bg-lyceum-blue h-2.5 rounded-full transition-width duration-500" style={{ width: `${progress}%` }}></div>
+                        </div>
+                    </div>
+                )
             ) : (
                 <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <div className="flex justify-between items-center mb-1">
-                        <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Progress</span>
-                        <span className="text-xs font-semibold text-lyceum-blue">{Math.round(progress)}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                        <div className="bg-lyceum-blue h-2.5 rounded-full transition-width duration-500" style={{ width: `${progress}%` }}></div>
+                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                        <Users size={16} className="mr-2" />
+                        <span className="font-semibold">{enrolledCount}</span>
+                        <span className="ml-1">student{enrolledCount !== 1 ? 's' : ''} enrolled</span>
                     </div>
                 </div>
             )}
@@ -133,6 +144,7 @@ const LmsView: React.FC<LmsViewProps> = ({ courses, onCourseSelect, user, contac
                     const completedLessons = studentContact?.lmsProgress?.[course.id]?.completedLessons.length || 0;
                     const progress = totalLessons > 0 ? (completedLessons / totalLessons) * 100 : 0;
                     const isEnrolled = !!(studentContact?.lmsProgress?.[course.id]);
+                    const enrolledCount = contacts.filter(c => c.lmsProgress && course.id in c.lmsProgress).length;
 
                     return (
                         <CourseCard 
@@ -146,6 +158,7 @@ const LmsView: React.FC<LmsViewProps> = ({ courses, onCourseSelect, user, contac
                             isStudent={isStudent}
                             isEnrolled={isEnrolled}
                             onPurchase={() => onInitiatePurchase(course)}
+                            enrolledCount={enrolledCount}
                         />
                     );
                 })}

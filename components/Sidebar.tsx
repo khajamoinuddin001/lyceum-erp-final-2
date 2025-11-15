@@ -16,16 +16,7 @@ import {
   BookOpen
 } from './icons';
 import type { User } from '../types';
-
-interface SidebarProps {
-  isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
-  activeApp: string;
-  onAppSelect: (appName: string) => void;
-  isMobile: boolean;
-  user: User;
-  onLogout: () => void;
-}
+import { useData } from '../hooks/useData';
 
 interface NavItemProps {
     icon: React.ReactNode;
@@ -59,8 +50,13 @@ const allStaffNavItems = [
     { name: 'Reception', icon: <ConciergeBell size={20} /> },
 ];
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen, activeApp, onAppSelect, isMobile, user, onLogout }) => {
-  const sidebarClasses = `
+const Sidebar: React.FC = () => {
+    const { state, setSidebarOpen, handleAppSelect, handleLogout } = useData();
+    const { sidebarOpen: isOpen, activeApp, isMobile, currentUser: user } = state;
+    
+    if (!user) return null;
+
+    const sidebarClasses = `
     bg-white dark:bg-gray-900 shadow-lg z-50 h-full transition-all duration-300 ease-in-out
     ${isMobile 
         ? `fixed inset-y-0 left-0 transform ${isOpen ? 'translate-x-0 w-64' : '-translate-x-full w-64'}`
@@ -72,9 +68,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen, activeApp, onAppSe
     if (user.role === 'Student') {
        return (
             <>
-                <NavItem icon={<BarChart3 size={20} />} label="Dashboard" active={activeApp === 'StudentDashboard'} onClick={() => onAppSelect('StudentDashboard')} />
-                <NavItem icon={<BookOpen size={20} />} label="LMS" active={activeApp === 'LMS'} onClick={() => onAppSelect('LMS')} />
-                <NavItem icon={<UserCircle size={20} />} label="My Profile" active={activeApp === 'Profile'} onClick={() => onAppSelect('Profile')} />
+                <NavItem icon={<BarChart3 size={20} />} label="Dashboard" active={activeApp === 'StudentDashboard'} onClick={() => handleAppSelect('StudentDashboard')} />
+                <NavItem icon={<BookOpen size={20} />} label="LMS" active={activeApp === 'LMS'} onClick={() => handleAppSelect('LMS')} />
+                <NavItem icon={<UserCircle size={20} />} label="My Profile" active={activeApp === 'Profile'} onClick={() => handleAppSelect('Profile')} />
             </>
         );
     }
@@ -92,7 +88,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen, activeApp, onAppSe
                     icon={item.icon}
                     label={item.name}
                     active={activeApp === item.name}
-                    onClick={() => onAppSelect(item.name)}
+                    onClick={() => handleAppSelect(item.name)}
                 />
             ))}
         </>
@@ -104,15 +100,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen, activeApp, onAppSe
         {isMobile && isOpen && (
             <div 
                 className="fixed inset-0 bg-black/30 z-40"
-                onClick={() => setIsOpen(false)}
+                onClick={() => setSidebarOpen(false)}
                 aria-hidden="true"
             ></div>
         )}
         <div className={sidebarClasses} role="navigation">
             <div className="flex flex-col h-full p-2">
                 <div className="flex items-center justify-between p-3 mb-4">
-                    <button onClick={() => onAppSelect(user.role === 'Student' ? 'StudentDashboard' : 'Apps')} className="text-2xl font-bold text-lyceum-blue dark:text-lyceum-blue/90 focus:outline-none">lyceum</button>
-                    <button onClick={() => setIsOpen(false)} className="text-gray-500 dark:text-gray-400 hover:text-lyceum-blue dark:hover:text-lyceum-blue">
+                    <button onClick={() => handleAppSelect(user.role === 'Student' ? 'StudentDashboard' : 'Apps')} className="text-2xl font-bold text-lyceum-blue dark:text-lyceum-blue/90 focus:outline-none">lyceum</button>
+                    <button onClick={() => setSidebarOpen(false)} className="text-gray-500 dark:text-gray-400 hover:text-lyceum-blue dark:hover:text-lyceum-blue">
                         <ChevronLeft size={24} />
                     </button>
                 </div>
@@ -121,9 +117,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen, activeApp, onAppSe
                 </nav>
                 <div className="mt-auto p-2 border-t border-gray-200 dark:border-gray-700">
                     {user.permissions?.['Settings'] && (
-                        <NavItem icon={<Cog size={20} />} label="Settings" active={activeApp === 'Settings'} onClick={() => onAppSelect('Settings')} />
+                        <NavItem icon={<Cog size={20} />} label="Settings" active={activeApp === 'Settings'} onClick={() => handleAppSelect('Settings')} />
                     )}
-                    <NavItem icon={<LogOut size={20} />} label="Sign Out" onClick={onLogout} />
+                    <NavItem icon={<LogOut size={20} />} label="Sign Out" onClick={handleLogout} />
                 </div>
             </div>
         </div>

@@ -1,7 +1,4 @@
 
-
-
-
 import React, { useState, useMemo } from 'react';
 import type { LmsCourse, LmsLesson, LmsModule, Contact, User } from '../types';
 import { ArrowLeft, BookOpen, ChevronDown, CheckCircle2, Circle, Video, Plus, Edit, Trash2, X, Paperclip, FileQuestion, BarChart3, GraduationCap, IndianRupee, FileText, MessageCircle } from './icons';
@@ -302,23 +299,23 @@ const CourseDetailView: React.FC<CourseDetailViewProps> = (props) => {
                 </div>
 
                 <div className="border-b border-t border-gray-200 dark:border-gray-700">
-                    <nav className="-mb-px flex space-x-4 px-6">
+                    <nav className="-mb-px flex space-x-4 px-6 overflow-x-auto hide-scrollbar">
                         <button
                             onClick={() => setViewMode('content')}
-                            className={`flex items-center gap-2 py-3 px-1 text-sm font-medium border-b-2 ${viewMode === 'content' ? 'border-lyceum-blue text-lyceum-blue' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-200'}`}
+                            className={`flex items-center gap-2 py-3 px-3 text-sm font-medium border-b-2 whitespace-nowrap ${viewMode === 'content' ? 'border-lyceum-blue text-lyceum-blue' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-200'}`}
                         >
                             <BookOpen size={16} /> Content
                         </button>
                          <button
                             onClick={() => setViewMode('discussions')}
-                            className={`flex items-center gap-2 py-3 px-1 text-sm font-medium border-b-2 ${viewMode === 'discussions' ? 'border-lyceum-blue text-lyceum-blue' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-200'}`}
+                            className={`flex items-center gap-2 py-3 px-3 text-sm font-medium border-b-2 whitespace-nowrap ${viewMode === 'discussions' ? 'border-lyceum-blue text-lyceum-blue' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-200'}`}
                         >
                             <MessageCircle size={16} /> Discussions
                         </button>
                         {isAdmin && (
                             <button
                                 onClick={() => setViewMode('analytics')}
-                                className={`flex items-center gap-2 py-3 px-1 text-sm font-medium border-b-2 ${viewMode === 'analytics' ? 'border-lyceum-blue text-lyceum-blue' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-200'}`}
+                                className={`flex items-center gap-2 py-3 px-3 text-sm font-medium border-b-2 whitespace-nowrap ${viewMode === 'analytics' ? 'border-lyceum-blue text-lyceum-blue' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-200'}`}
                             >
                                 <BarChart3 size={16} /> Analytics
                             </button>
@@ -342,6 +339,13 @@ const CourseDetailView: React.FC<CourseDetailViewProps> = (props) => {
                 }
                 .animate-fade-in {
                     animation: fade-in 0.3s ease-out forwards;
+                }
+                .hide-scrollbar {
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
+                }
+                .hide-scrollbar::-webkit-scrollbar {
+                    display: none;
                 }
             `}</style>
         </div>

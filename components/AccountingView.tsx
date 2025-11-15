@@ -1,17 +1,15 @@
-
-
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import type { AccountingTransaction, TransactionStatus, TransactionType, User } from '../types';
 import { IndianRupee, Filter, ArrowUp, ArrowDown, MoreHorizontal } from './icons';
+import { useData } from '../hooks/useData';
 
-interface AccountingViewProps {
-    transactions: AccountingTransaction[];
-    onNewInvoiceClick: () => void;
-    user: User;
-    onRecordPayment: (transactionId: string) => void;
+interface KpiCardProps {
+    title: string;
+    value: string;
+    colorClass?: string;
 }
 
-const KpiCard: React.FC<{ title: string; value: string; colorClass?: string; }> = ({ title, value, colorClass = 'text-gray-800 dark:text-gray-100' }) => (
+const KpiCard: React.FC<KpiCardProps> = ({ title, value, colorClass = 'text-gray-800 dark:text-gray-100' }) => (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
         <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</p>
         <p className={`text-3xl font-bold mt-1 ${colorClass}`}>{value}</p>
@@ -83,8 +81,12 @@ const TransactionRow: React.FC<{ transaction: AccountingTransaction; onRecordPay
     );
 }
 
-const AccountingView: React.FC<AccountingViewProps> = ({ transactions, onNewInvoiceClick, user, onRecordPayment }) => {
+const AccountingView: React.FC = () => {
+    const { state, handleSave, recordPayment: onRecordPayment } = useData();
+    const { transactions, currentUser: user } = state;
     
+    const onNewInvoiceClick = () => handleSave('isNewInvoiceModalOpen', true);
+
     // Filters
     const [dateFrom, setDateFrom] = useState('');
     const [dateTo, setDateTo] = useState('');
@@ -95,6 +97,8 @@ const AccountingView: React.FC<AccountingViewProps> = ({ transactions, onNewInvo
     type SortKey = 'id' | 'date' | 'amount';
     const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: 'asc' | 'desc' } | null>({ key: 'date', direction: 'desc' });
     
+    if (!user) return null;
+
     const canCreate = user.permissions?.['Accounting']?.create;
     const canUpdate = user.permissions?.['Accounting']?.update;
     

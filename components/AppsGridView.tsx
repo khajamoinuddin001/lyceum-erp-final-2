@@ -1,14 +1,13 @@
 import React from 'react';
 import AppCard from './AppCard';
 import { ODOO_APPS } from './constants';
-import type { User } from '../types';
+import { useData } from '../hooks/useData';
 
-interface AppsGridViewProps {
-  onAppSelect: (appName: string) => void;
-  user: User;
-}
+const AppsGridView: React.FC = () => {
+  const { state, handleAppSelect } = useData();
+  const { currentUser: user } = state;
+  if (!user) return null;
 
-const AppsGridView: React.FC<AppsGridViewProps> = ({ onAppSelect, user }) => {
   const availableApps = ODOO_APPS.filter(app => app.name in (user.permissions || {}));
 
   return (
@@ -16,7 +15,7 @@ const AppsGridView: React.FC<AppsGridViewProps> = ({ onAppSelect, user }) => {
       <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Applications</h1>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-3 md:gap-6">
         {availableApps.map((app, index) => (
-          <AppCard key={index} app={app} onAppSelect={onAppSelect} />
+          <AppCard key={index} app={app} onAppSelect={handleAppSelect} />
         ))}
       </div>
        <style>{`

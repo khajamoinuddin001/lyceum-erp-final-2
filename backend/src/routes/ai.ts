@@ -1,4 +1,5 @@
-import express = require('express');
+
+import express, { Request, Response } from 'express';
 import { GoogleGenAI } from '@google/genai';
 
 const router = express.Router();
@@ -9,7 +10,7 @@ if (!process.env.API_KEY) {
 // Initialize only if API_KEY is available
 const ai = process.env.API_KEY ? new GoogleGenAI({ apiKey: process.env.API_KEY }) : null;
 
-router.post('/summarize', async (req: express.Request, res: express.Response) => {
+router.post('/summarize', async (req: Request, res: Response) => {
     if (!ai) {
         return res.status(503).json({ message: 'AI Service is not configured.' });
     }
@@ -30,7 +31,7 @@ router.post('/summarize', async (req: express.Request, res: express.Response) =>
     }
 });
 
-router.post('/analyze-document', async (req: express.Request, res: express.Response) => {
+router.post('/analyze-document', async (req: Request, res: Response) => {
     if (!ai) {
         return res.status(503).json({ message: 'AI Service is not configured.' });
     }
@@ -67,7 +68,7 @@ router.post('/analyze-document', async (req: express.Request, res: express.Respo
     }
 });
 
-router.post('/draft-email', async (req: express.Request, res: express.Response) => {
+router.post('/draft-email', async (req: Request, res: Response) => {
     if (!ai) {
         return res.status(503).json({ message: 'AI Service is not configured.' });
     }

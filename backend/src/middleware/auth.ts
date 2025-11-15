@@ -1,16 +1,17 @@
-import express = require('express');
+
+import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-key';
 
-export interface AuthRequest extends express.Request {
+export interface AuthRequest extends Request {
     user?: {
         userId: number;
         role: string;
     };
 }
 
-const authMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {

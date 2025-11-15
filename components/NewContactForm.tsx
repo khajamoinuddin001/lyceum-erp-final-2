@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useRef } from 'react';
 import { HelpCircle, Sparkles, MailPlus, Flag, PlusCircle, StickyNote, Video as VideoIcon, CheckCircle2, VideoOff, Camera, Plus, Trash2, ChevronDown, Upload } from './icons';
 import type { Contact, FileStatus, User, ContactActivity, ContactActivityAction, RecordedSession } from '../types';
@@ -6,20 +7,7 @@ import { summarizeText } from '../utils/gemini';
 import VideoRecordingModal from './VideoRecordingModal';
 import { getVideo } from '../utils/db';
 import CameraModal from './CameraModal';
-
-interface NewContactFormProps {
-  contact?: Contact;
-  contacts: Contact[];
-  onNavigateBack: () => void;
-  onNavigateToDocuments: () => void;
-  onNavigateToVisa: () => void;
-  onNavigateToChecklist: () => void;
-  onSave: (contact: Contact) => void;
-  onComposeAIEmail: (prompt: string, contact: Contact) => void;
-  user: User;
-  onAddSessionVideo: (contactId: number, videoBlob: Blob) => Promise<void>;
-  onDeleteSessionVideo: (contactId: number, sessionId: number) => Promise<void>;
-}
+import { useData } from '../hooks/useData';
 
 const SessionPlayer: React.FC<{
     session: RecordedSession;
@@ -198,7 +186,11 @@ const generateReferenceNumber = (allContacts: Contact[]) => {
 };
 
 
-const NewContactForm: React.FC<NewContactFormProps> = ({ contact, contacts, onNavigateBack, onNavigateToDocuments, onNavigateToVisa, onNavigateToChecklist, onSave, onComposeAIEmail, user, onAddSessionVideo, onDeleteSessionVideo }) => {
+export const NewContactForm: React.FC = () => {
+  const { state, handleSave: handleContextSave, saveContact, generateEmailDraft, addSessionVideo, deleteSessionVideo } = useData();
+  const { editingContact, contacts, currentUser: user } = state;
+  const contact = editingContact === 'new' ? undefined : editingContact;
+  
   const [formData, setFormData] = useState(initialFormState);
   const [isSummarizing, setIsSummarizing] = useState(false);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
@@ -207,8 +199,14 @@ const NewContactForm: React.FC<NewContactFormProps> = ({ contact, contacts, onNa
   const avatarMenuRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isNew = !contact;
+
+  if (!user) return null;
   const canWrite = isNew ? user.permissions['Contacts']?.create : user.permissions['Contacts']?.update;
 
+  const onNavigateBack = () => handleContextSave('editingContact', null);
+  const onNavigateToDocuments = () => handleContextSave('contactViewMode', 'documents');
+  const onNavigateToVisa = () => handleContextSave('contactViewMode', 'visaFiling');
+  const onNavigateToChecklist = () => handleContextSave('contactViewMode', 'checklist');
 
   useEffect(() => {
     if (contact) {
@@ -291,7 +289,7 @@ const NewContactForm: React.FC<NewContactFormProps> = ({ contact, contacts, onNa
     if (!contact) return;
     const prompt = window.prompt("What should the email be about?");
     if (prompt) {
-        onComposeAIEmail(prompt, contact);
+        generateEmailDraft(prompt, contact.name);
     }
   };
 
@@ -332,18 +330,18 @@ const NewContactForm: React.FC<NewContactFormProps> = ({ contact, contacts, onNa
           applicationEmail: formData.applicationEmail,
           applicationPassword: formData.applicationPassword,
       };
-      onSave(contactToSave);
+      saveContact(contactToSave, isNew);
   };
 
   const handleSaveVideo = async (videoBlob: Blob) => {
     if (!contact || typeof contact === 'string') return;
-    await onAddSessionVideo(contact.id, videoBlob);
+    await addSessionVideo(contact.id, videoBlob);
   };
   
   const handleDeleteVideo = async (sessionId: number) => {
     if (!contact || typeof contact === 'string') return;
     if (window.confirm("Are you sure you want to delete this recorded session?")) {
-        await onDeleteSessionVideo(contact.id, sessionId);
+        await deleteSessionVideo(contact.id, sessionId);
     }
   };
 
@@ -386,8 +384,8 @@ const NewContactForm: React.FC<NewContactFormProps> = ({ contact, contacts, onNa
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm w-full mx-auto animate-fade-in">
-        <div className="p-6">
-            <div className="flex items-start justify-between">
+        <div className="p-4 sm:p-6">
+            <div className="flex flex-col-reverse gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <input
                     name="name"
                     value={formData.name}
@@ -396,7 +394,7 @@ const NewContactForm: React.FC<NewContactFormProps> = ({ contact, contacts, onNa
                     disabled={!canWrite}
                     className="w-full bg-transparent text-gray-800 dark:text-gray-200 text-3xl font-bold focus:outline-none placeholder:text-gray-400/80 border-b-2 border-gray-200 dark:border-gray-700 focus:border-lyceum-blue pb-2"
                 />
-                 <div className="relative ml-6 flex-shrink-0" ref={avatarMenuRef}>
+                 <div className="relative sm:ml-6 flex-shrink-0 self-center sm:self-auto" ref={avatarMenuRef}>
                     <button
                         onClick={handleAvatarClick}
                         disabled={!canWrite}
@@ -434,14 +432,16 @@ const NewContactForm: React.FC<NewContactFormProps> = ({ contact, contacts, onNa
             </div>
         </div>
         
-        <div className="flex border-b border-gray-200 dark:border-gray-700 px-6">
-            <button className="px-1 py-3 font-semibold text-lyceum-blue border-b-2 border-lyceum-blue -mb-px" aria-current="page">Details</button>
-            <button onClick={onNavigateToDocuments} disabled={!contact} className="ml-4 px-1 py-3 font-medium text-gray-500 dark:text-gray-400 hover:text-lyceum-blue disabled:opacity-50 disabled:cursor-not-allowed">Documents</button>
-            <button onClick={onNavigateToChecklist} disabled={!contact} className="ml-4 px-1 py-3 font-medium text-gray-500 dark:text-gray-400 hover:text-lyceum-blue disabled:opacity-50 disabled:cursor-not-allowed">Checklist</button>
-            <button onClick={onNavigateToVisa} disabled={!contact} className="ml-4 px-1 py-3 font-medium text-gray-500 dark:text-gray-400 hover:text-lyceum-blue disabled:opacity-50 disabled:cursor-not-allowed">Visa Filing</button>
+        <div className="border-b border-gray-200 dark:border-gray-700">
+            <nav className="flex space-x-2 sm:space-x-4 overflow-x-auto px-4 sm:px-6 hide-scrollbar">
+                <button className="px-3 py-3 font-semibold text-lyceum-blue border-b-2 border-lyceum-blue -mb-px whitespace-nowrap" aria-current="page">Details</button>
+                <button onClick={onNavigateToDocuments} disabled={!contact} className="px-3 py-3 font-medium text-gray-500 dark:text-gray-400 hover:text-lyceum-blue disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap">Documents</button>
+                <button onClick={onNavigateToChecklist} disabled={!contact} className="px-3 py-3 font-medium text-gray-500 dark:text-gray-400 hover:text-lyceum-blue disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap">Checklist</button>
+                <button onClick={onNavigateToVisa} disabled={!contact} className="px-3 py-3 font-medium text-gray-500 dark:text-gray-400 hover:text-lyceum-blue disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap">Visa Filing</button>
+            </nav>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-4 p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-4 p-4 sm:p-6">
             {/* Left Column */}
             <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 items-start py-2">
@@ -483,131 +483,24 @@ const NewContactForm: React.FC<NewContactFormProps> = ({ contact, contacts, onNa
                 <FormRow label="Stream"><FormInput name="stream" value={formData.stream} onChange={handleChange} disabled={!canWrite} /></FormRow>
                 <FormRow label="Course"><FormInput name="course" value={formData.course} onChange={handleChange} disabled={!canWrite} /></FormRow>
                 <FormRow label="Intake"><FormInput name="intake" value={formData.intake} onChange={handleChange} disabled={!canWrite} /></FormRow>
-                <FormRow label="Counselor Assigned"><FormInput name="counselorAssigned" value={formData.counselorAssigned} onChange={handleChange} disabled={!canWrite} /></FormRow>
-                <FormRow label="Agent Assigned">
-                    <select name="agentAssigned" value={formData.agentAssigned} onChange={handleChange} disabled={!canWrite} className="w-full bg-transparent text-gray-800 dark:text-gray-200 text-sm focus:outline-none dark:bg-gray-800 disabled:opacity-70 disabled:cursor-not-allowed">
-                        <option value="">Select an Agent</option><option value="Agent A">Agent A</option><option value="Agent B">Agent B</option><option value="Agent C">Agent C</option>
-                    </select>
-                </FormRow>
-                <FormRow label="Application Email"><FormInput name="applicationEmail" value={formData.applicationEmail} onChange={handleChange} disabled={!canWrite} /></FormRow>
-                <FormRow label="Application Password"><FormInput name="applicationPassword" value={formData.applicationPassword} onChange={handleChange} disabled={!canWrite} /></FormRow>
-                <FormRow label="File Status">
-                     <select name="fileStatus" value={formData.fileStatus} onChange={handleChange} disabled={!canWrite} className="w-full bg-transparent text-gray-800 dark:text-gray-200 text-sm focus:outline-none dark:bg-gray-800 disabled:opacity-70 disabled:cursor-not-allowed">
-                        <option value="">Select Status</option><option value="In progress">In progress</option><option value="Closed">Closed</option><option value="On hold">On hold</option>
-                    </select>
-                </FormRow>
-            </div>
-        </div>
-
-        {/* Notes Section */}
-        <div className="px-6 py-4">
-             <div className="p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between mb-1">
-                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Notes</label>
-                    <div className="flex items-center gap-2">
-                        <button onClick={handleSummarize} disabled={isSummarizing || !formData.notes || !canWrite} className="flex items-center px-2 py-1 text-xs font-semibold text-lyceum-blue rounded-md hover:bg-lyceum-blue/10 disabled:opacity-50 disabled:cursor-not-allowed" title="Summarize with AI">
-                            <Sparkles size={14} className="mr-1" />
-                            {isSummarizing ? 'Summarizing...' : 'Summarize with AI'}
-                        </button>
-                        <button 
-                            onClick={handleComposeEmail} 
-                            disabled={isNew || !canWrite} 
-                            className="flex items-center px-2 py-1 text-xs font-semibold text-lyceum-blue rounded-md hover:bg-lyceum-blue/10 disabled:opacity-50 disabled:cursor-not-allowed"
-                            title={isNew ? "Save contact to use AI Email Assistant" : "Draft an email with AI"}
-                        >
-                            <MailPlus size={14} className="mr-1" />
-                            AI Email
-                        </button>
-                    </div>
-                </div>
-                <textarea name="notes" value={formData.notes} onChange={handleChange} rows={5} disabled={!canWrite} placeholder="Add notes about the student..." className="w-full bg-transparent text-gray-800 dark:text-gray-200 text-sm mt-1 focus:outline-none placeholder:text-gray-400 resize-y disabled:opacity-70 disabled:cursor-not-allowed"/>
-            </div>
-        </div>
-        
-        {/* Activity and Sessions Section */}
-        <div className="px-6 py-4 mt-6">
-             <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Activity &amp; Sessions</h3>
-             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                 <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Recorded Sessions</h3>
-                        <button 
-                            onClick={() => setIsVideoModalOpen(true)} 
-                            disabled={!canWrite || isNew} 
-                            className="inline-flex items-center px-2 py-1 text-xs font-semibold text-white bg-lyceum-blue rounded-md hover:bg-lyceum-blue-dark disabled:bg-gray-400 disabled:cursor-not-allowed"
-                            title={isNew ? "Save contact to enable recording" : ""}
-                        >
-                            <Plus size={14} className="mr-1" />
-                            Add Session
-                        </button>
-                    </div>
-                    <div className="mt-3 space-y-2 max-h-60 overflow-y-auto">
-                        {contact?.recordedSessions && contact.recordedSessions.length > 0 ? (
-                            [...contact.recordedSessions].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()).map(session => (
-                                <SessionPlayer
-                                    key={session.id}
-                                    session={session}
-                                    onDelete={handleDeleteVideo}
-                                    canWrite={!!canWrite}
-                                />
-                            ))
-                        ) : (
-                            <p className="text-xs text-gray-500 dark:text-gray-400 text-center py-4">No sessions recorded.</p>
-                        )}
-                    </div>
-                </div>
-                <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Recent Activity</h3>
-                    <ul className="mt-3 space-y-4 max-h-96 overflow-y-auto">
-                        {contact?.activityLog?.map(activity => (
-                           <li key={activity.id} className="flex items-start gap-3">
-                                <ActivityIcon action={activity.action} />
-                                <div>
-                                    <p className="text-sm text-gray-700 dark:text-gray-200">{activity.description}</p>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">{formatTimeAgo(activity.timestamp)}</p>
-                                </div>
-                           </li>
-                        ))}
-                        {(!contact?.activityLog || contact.activityLog.length === 0) && <p className="text-xs text-gray-500 dark:text-gray-400 text-center py-4">No activity yet.</p>}
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <div className="flex items-center justify-end space-x-3 p-6 border-t border-gray-200 dark:border-gray-700">
-            <button onClick={onNavigateBack} className="px-6 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-lyceum-blue">
-                Cancel
-            </button>
-            <button onClick={handleSave} disabled={!canWrite} className="px-6 py-2 bg-lyceum-blue border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-lyceum-blue-dark focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-lyceum-blue disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed">
-                Save Changes
-            </button>
-        </div>
-
-        {!isNew && (
-            <VideoRecordingModal
-                isOpen={isVideoModalOpen}
-                onClose={() => setIsVideoModalOpen(false)}
-                onSave={handleSaveVideo}
-            />
-        )}
-
-        <CameraModal 
-            isOpen={isCameraModalOpen}
-            onClose={() => setIsCameraModalOpen(false)}
-            onCapture={handleCapture}
-        />
-
-        <style>{`
-            @keyframes fade-in {
+    <style>{`
+        @keyframes fade-in {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
-            }
-            .animate-fade-in {
+        }
+        .animate-fade-in {
             animation: fade-in 0.3s ease-out forwards;
-            }
-        `}</style>
-    </div>
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+    `}</style>
+    {isCameraModalOpen && <CameraModal isOpen={isCameraModalOpen} onClose={() => setIsCameraModalOpen(false)} onCapture={handleCapture} />}
+    {isVideoModalOpen && <VideoRecordingModal isOpen={isVideoModalOpen} onClose={() => setIsVideoModalOpen(false)} onSave={handleSaveVideo} />}
+</div>
   );
 };
-
-export default NewContactForm;

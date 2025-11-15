@@ -1,14 +1,14 @@
-
 import React from 'react';
 import { ArrowLeft, Mail, Phone, UserCircle } from './icons';
 import type { User } from '../types';
+import { useData } from '../hooks/useData';
 
-interface ProfileViewProps {
-  onNavigateBack: () => void;
-  user: User;
+interface InfoCardProps {
+    children: React.ReactNode;
+    title: string;
 }
 
-const InfoCard: React.FC<{ children: React.ReactNode; title: string }> = ({ children, title }) => (
+const InfoCard: React.FC<InfoCardProps> = ({ children, title }) => (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
         <div className="p-4 border-b dark:border-gray-700">
             <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">{title}</h2>
@@ -17,7 +17,14 @@ const InfoCard: React.FC<{ children: React.ReactNode; title: string }> = ({ chil
     </div>
 );
 
-const ProfileView: React.FC<ProfileViewProps> = ({ onNavigateBack, user }) => {
+const ProfileView: React.FC = () => {
+  const { state, handleAppSelect } = useData();
+  const { currentUser: user } = state;
+
+  if (!user) return null;
+
+  const onNavigateBack = () => handleAppSelect('Apps');
+
   return (
     <div className="animate-fade-in max-w-4xl mx-auto">
        <button

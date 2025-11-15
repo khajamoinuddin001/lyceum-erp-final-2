@@ -1,14 +1,14 @@
 
 
 import React from 'react';
-import type { Contact, LmsCourse } from '../types';
+import type { Contact, LmsCourse, CalendarEvent } from '../types';
 import { GraduationCap, BookOpen, CalendarClock, Paperclip, CheckCircle2, Circle } from './icons';
-import { SAMPLE_EVENTS } from '../hooks/calendar';
 
 interface StudentDashboardProps {
   student?: Contact;
   courses: LmsCourse[];
   onAppSelect: (appName: string) => void;
+  events: CalendarEvent[];
 }
 
 const InfoCard: React.FC<{ icon: React.ReactNode; title: string; children: React.ReactNode; }> = ({ icon, title, children }) => (
@@ -23,7 +23,7 @@ const InfoCard: React.FC<{ icon: React.ReactNode; title: string; children: React
     </div>
 );
 
-const StudentDashboard: React.FC<StudentDashboardProps> = ({ student, courses, onAppSelect }) => {
+const StudentDashboard: React.FC<StudentDashboardProps> = ({ student, courses, onAppSelect, events }) => {
 
   if (!student) {
     return (
@@ -38,7 +38,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ student, courses, o
   const today = new Date();
   const nextWeek = new Date();
   nextWeek.setDate(today.getDate() + 7);
-  const upcomingEvents = SAMPLE_EVENTS
+  const upcomingEvents = events
     .filter(e => e.start >= today && e.start <= nextWeek)
     .sort((a, b) => a.start.getTime() - b.start.getTime())
     .slice(0, 3);

@@ -6,7 +6,7 @@ interface NewLeadModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (lead: Omit<CrmLead, 'id' | 'stage'> & { id?: number }) => void;
-  lead?: CrmLead | null;
+  lead?: CrmLead | 'new' | null;
   agents: string[];
   user: User;
 }
@@ -26,12 +26,12 @@ const NewLeadModal: React.FC<NewLeadModalProps> = ({ isOpen, onClose, onSave, le
   });
   const [error, setError] = useState('');
   
-  const isEditing = !!lead;
+  const isEditing = !!(lead && typeof lead !== 'string');
   const canWrite = isEditing ? user.permissions['CRM']?.update : user.permissions['CRM']?.create;
 
   useEffect(() => {
     if (isOpen) {
-        if (isEditing) {
+        if (isEditing && lead) {
             setFormData({
                 title: lead.title || '',
                 company: lead.company || '',
@@ -81,7 +81,7 @@ const NewLeadModal: React.FC<NewLeadModalProps> = ({ isOpen, onClose, onSave, le
     const leadToSave = {
         ...formData,
         value: parsedValue,
-        id: isEditing ? lead.id : undefined,
+        id: isEditing && lead ? (lead as CrmLead).id : undefined,
     };
     onSave(leadToSave);
   };

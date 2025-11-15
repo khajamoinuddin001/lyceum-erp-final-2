@@ -1,12 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import type { CalendarEvent } from '../types';
 import { ChevronLeft, ChevronRight, Plus, Calendar, List } from './icons';
-
-interface CalendarViewProps {
-  events: CalendarEvent[];
-  onNewEvent: (date: Date) => void;
-  onSelectEvent: (event: CalendarEvent) => void;
-}
+import { useData } from '../hooks/useData';
 
 const eventColorClasses: { [key in CalendarEvent['color']]: { bg: string; text: string; border: string; } } = {
   blue: { bg: 'bg-blue-100 dark:bg-blue-900/50', text: 'text-blue-800 dark:text-blue-200', border: 'border-l-4 border-blue-500' },
@@ -15,9 +10,20 @@ const eventColorClasses: { [key in CalendarEvent['color']]: { bg: string; text: 
   red: { bg: 'bg-red-100 dark:bg-red-900/50', text: 'text-red-800 dark:text-red-200', border: 'border-l-4 border-red-500' },
 };
 
-const CalendarView: React.FC<CalendarViewProps> = ({ events, onNewEvent, onSelectEvent }) => {
+const CalendarView: React.FC = () => {
+    const { state, handleSave } = useData();
+    const { events } = state;
     const [currentDate, setCurrentDate] = useState(new Date());
     const [view, setView] = useState<'month' | 'agenda'>('month');
+
+    const onNewEvent = (date: Date) => {
+        handleSave('selectedEventInfo', { date });
+        handleSave('isEventModalOpen', true);
+    };
+    const onSelectEvent = (event: CalendarEvent) => {
+        handleSave('selectedEventInfo', { event });
+        handleSave('isEventModalOpen', true);
+    };
 
     const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -26,10 +32,6 @@ const CalendarView: React.FC<CalendarViewProps> = ({ events, onNewEvent, onSelec
     const daysInMonth = lastDayOfMonth.getDate();
     const startingDayOfWeek = firstDayOfMonth.getDay();
 
-    // FIX: The original code created arrays of objects with different shapes and key types,
-    // causing type errors with .concat() and subsequent property access. This has been
-    // corrected by ensuring all objects in the `calendarDays` array have a consistent
-    // shape ({ key, date, isToday }) and that the `key` is always a string.
     const calendarDays = Array.from({ length: startingDayOfWeek }).map((_, i) => ({ key: `empty-${i}`, date: undefined, isToday: false }))
       .concat(Array.from({ length: daysInMonth }, (_, i) => {
           const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), i + 1);
@@ -96,7 +98,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ events, onNewEvent, onSelec
     return (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm animate-fade-in flex flex-col h-full">
             <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 gap-4 border-b border-gray-200 dark:border-gray-700">
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 sm:gap-4">
                     <h1 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100 whitespace-nowrap">
                         {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
                     </h1>
@@ -106,7 +108,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ events, onNewEvent, onSelec
                         <button onClick={goToNextMonth} className="p-1 text-gray-500 dark:text-gray-400 hover:text-lyceum-blue rounded-full"><ChevronRight size={24} /></button>
                     </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="w-full sm:w-auto flex items-center flex-wrap justify-end gap-2">
                      <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1 text-sm">
                         <button onClick={() => setView('month')} className={`flex items-center gap-1.5 px-3 py-1 rounded-md transition-colors ${view === 'month' ? 'bg-white dark:bg-gray-800 shadow-sm text-lyceum-blue font-semibold' : 'text-gray-500 dark:text-gray-400'}`}><Calendar size={16}/> Month</button>
                         <button onClick={() => setView('agenda')} className={`flex items-center gap-1.5 px-3 py-1 rounded-md transition-colors ${view === 'agenda' ? 'bg-white dark:bg-gray-800 shadow-sm text-lyceum-blue font-semibold' : 'text-gray-500 dark:text-gray-400'}`}><List size={16}/> Agenda</button>
@@ -119,14 +121,14 @@ const CalendarView: React.FC<CalendarViewProps> = ({ events, onNewEvent, onSelec
                  <div className="flex-1 grid grid-cols-7 grid-rows-6">
                     {weekdays.map(day => <div key={day} className="text-center font-semibold text-xs text-gray-500 dark:text-gray-400 py-2 border-r border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">{day}</div>)}
                     {calendarDays.map((day, index) => (
-                        <div key={day.key} className="group relative border-r border-b border-gray-200 dark:border-gray-700 p-1.5 flex flex-col min-h-[120px] transition-colors hover:bg-gray-50 dark:hover:bg-gray-900/50">
+                        <div key={day.key} className="group relative border-r border-b border-gray-200 dark:border-gray-700 p-1 flex flex-col min-h-[90px] sm:min-h-[120px] transition-colors hover:bg-gray-50 dark:hover:bg-gray-900/50">
                             {day.date && (
                                 <>
-                                    <button onClick={() => onNewEvent(day.date)} className="absolute top-1 right-1 p-1 rounded-full text-gray-400 opacity-0 group-hover:opacity-100 hover:bg-lyceum-blue/10 hover:text-lyceum-blue"><Plus size={14}/></button>
-                                    <span className={`text-sm self-end ${day.isToday ? 'bg-lyceum-blue text-white rounded-full w-7 h-7 flex items-center justify-center font-bold' : 'text-gray-600 dark:text-gray-300'}`}>{day.date.getDate()}</span>
+                                    <button onClick={() => onNewEvent(day.date!)} className="absolute top-1 right-1 p-1 rounded-full text-gray-400 opacity-0 group-hover:opacity-100 hover:bg-lyceum-blue/10 hover:text-lyceum-blue"><Plus size={14}/></button>
+                                    <span className={`text-xs sm:text-sm self-end ${day.isToday ? 'bg-lyceum-blue text-white rounded-full w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center font-bold' : 'text-gray-600 dark:text-gray-300'}`}>{day.date.getDate()}</span>
                                     <div className="mt-1 space-y-1 overflow-y-auto">
                                         {(eventsByDate.get(day.date.toDateString()) || []).map(event => (
-                                            <button key={event.id} onClick={() => onSelectEvent(event)} className={`w-full text-left px-2 py-1 rounded-md text-xs truncate ${eventColorClasses[event.color].bg} ${eventColorClasses[event.color].text} font-semibold`}>
+                                            <button key={event.id} onClick={() => onSelectEvent(event)} className={`w-full text-left px-1 sm:px-2 py-1 rounded-md text-[10px] sm:text-xs truncate ${eventColorClasses[event.color].bg} ${eventColorClasses[event.color].text} font-semibold`}>
                                                 {event.title}
                                             </button>
                                         ))}

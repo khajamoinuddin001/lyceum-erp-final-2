@@ -1,17 +1,20 @@
+
 import React, { useState, useEffect } from 'react';
 import { X, Plus, Trash2 } from './icons';
 import type { LmsLesson, LessonAttachment, QuizQuestion } from '../types';
 
 interface LessonEditModalProps {
-  lesson: Omit<LmsLesson, 'id'> | LmsLesson | null;
+  lessonInfo: { moduleId?: string; lesson?: LmsLesson } | null;
   onClose: () => void;
   onSave: (lessonData: Omit<LmsLesson, 'id'> | LmsLesson) => void;
 }
 
-const LessonEditModal: React.FC<LessonEditModalProps> = ({ lesson, onClose, onSave }) => {
+const LessonEditModal: React.FC<LessonEditModalProps> = ({ lessonInfo, onClose, onSave }) => {
   const [localLesson, setLocalLesson] = useState<Partial<LmsLesson>>({});
   const [error, setError] = useState('');
-  const isNew = !lesson || !('id' in lesson);
+
+  const lesson = lessonInfo?.lesson;
+  const isNew = !lesson;
 
   useEffect(() => {
     const initialData = lesson ? JSON.parse(JSON.stringify(lesson)) : {};
@@ -19,7 +22,7 @@ const LessonEditModal: React.FC<LessonEditModalProps> = ({ lesson, onClose, onSa
     if (!initialData.quiz) initialData.quiz = [];
     setLocalLesson(initialData);
     setError('');
-  }, [lesson]);
+  }, [lessonInfo]);
 
   const handleSave = () => {
     if (!localLesson.title?.trim() || !localLesson.content?.trim()) {
@@ -80,10 +83,15 @@ const LessonEditModal: React.FC<LessonEditModalProps> = ({ lesson, onClose, onSa
 
 
   return (
-    <div className="fixed inset-0 bg-gray-900 bg-opacity-60 z-50 flex justify-center items-center p-4 animate-fade-in-fast">
+    <div
+      className="fixed inset-0 bg-gray-900 bg-opacity-60 z-50 flex justify-center items-center p-4 animate-fade-in-fast"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="lesson-edit-title"
+    >
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-3xl flex flex-col" style={{maxHeight: '90vh'}} onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">{isNew ? 'Create New Lesson' : 'Edit Lesson'}</h2>
+          <h2 id="lesson-edit-title" className="text-lg font-semibold text-gray-800 dark:text-gray-100">{isNew ? 'Create New Lesson' : 'Edit Lesson'}</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"><X size={24} /></button>
         </div>
         <div className="p-6 space-y-6 overflow-y-auto">
@@ -96,6 +104,10 @@ const LessonEditModal: React.FC<LessonEditModalProps> = ({ lesson, onClose, onSa
             <div>
               <label htmlFor="lesson-content" className={labelClasses}>Content (Markdown supported)</label>
               <textarea id="lesson-content" rows={8} value={localLesson.content || ''} onChange={e => setLocalLesson(p => ({...p, content: e.target.value}))} className={inputClasses} />
+            </div>
+             <div>
+              <label htmlFor="lesson-videoUrl" className={labelClasses}>Video URL (Optional)</label>
+              <input id="lesson-videoUrl" type="text" value={localLesson.videoUrl || ''} onChange={e => setLocalLesson(p => ({...p, videoUrl: e.target.value}))} className={inputClasses} placeholder="https://example.com/video.mp4" />
             </div>
           </div>
           

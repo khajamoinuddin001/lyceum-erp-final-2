@@ -1,16 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import type { Contact, StudentCourse, User } from '../types';
 import { ArrowLeft, GraduationCap, UserCircle, BookOpen, LayoutDashboard, BookCopy, Cog, CheckCircle2, Circle, Lock } from './icons';
-
-interface StudentProfileViewProps {
-  student: Contact;
-  user: User;
-  onNavigateBack: () => void;
-  onUpdateProfile: (userId: number, name: string, email: string) => void;
-  onChangePassword: (userId: number, current: string, newPass: string) => Promise<{ success: boolean; message: string; }>;
-}
+import { useData } from '../hooks/useData';
 
 const getInitials = (name: string) => {
+  if (!name) return '?';
   const names = name.split(' ');
   if (names.length === 1) return names[0].charAt(0).toUpperCase();
   return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
@@ -63,7 +57,11 @@ const AcademicsTab: React.FC<{ student: Contact }> = ({ student }) => (
     </div>
 );
 
-const SettingsTab: React.FC<Pick<StudentProfileViewProps, 'user' | 'onUpdateProfile' | 'onChangePassword'>> = ({ user, onUpdateProfile, onChangePassword }) => {
+const SettingsTab: React.FC<{
+    user: User;
+    onUpdateProfile: (userId: number, name: string, email: string) => void;
+    onChangePassword: (userId: number, current: string, newPass: string) => Promise<{ success: boolean; message: string; }>;
+}> = ({ user, onUpdateProfile, onChangePassword }) => {
     const [name, setName] = useState(user.name);
     const [email, setEmail] = useState(user.email);
     const [profileMessage, setProfileMessage] = useState('');
@@ -136,14 +134,21 @@ const SettingsTab: React.FC<Pick<StudentProfileViewProps, 'user' | 'onUpdateProf
     );
 };
 
-const StudentProfileView: React.FC<StudentProfileViewProps> = (props) => {
-  const { student, user, onNavigateBack } = props;
-  const [activeTab, setActiveTab] = useState<'overview' | 'academics' | 'settings'>('overview');
-  
-  const checklist = student.checklist || [];
-  const completedCount = checklist.filter(item => item.completed).length;
-  const totalCount = checklist.length;
-  const checklistProgress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+const StudentProfileView: React.FC = () => {
+    const { state, handleAppSelect, handleUpdateProfile, handleChangePassword } = useData();
+    const { currentUser: user, contacts } = state;
+    const [activeTab, setActiveTab] = useState<'overview' | 'academics' | 'settings'>('overview');
+
+    const student = useMemo(() => contacts.find(c => c.userId === user?.id), [contacts, user]);
+    
+    if (!student || !user) return null;
+
+    const onNavigateBack = () => handleAppSelect('StudentDashboard');
+    
+    const checklist = student.checklist || [];
+    const completedCount = checklist.filter(item => item.completed).length;
+    const totalCount = checklist.length;
+    const checklistProgress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
   return (
     <div className="animate-fade-in">
@@ -154,15 +159,15 @@ const StudentProfileView: React.FC<StudentProfileViewProps> = (props) => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <main className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="p-6 flex items-center">
+          <div className="p-6 flex flex-col sm:flex-row items-center">
             {student.avatarUrl ? (
-                <img src={student.avatarUrl} alt={student.name} className="w-24 h-24 rounded-full mr-6" />
+                <img src={student.avatarUrl} alt={student.name} className="w-20 h-20 sm:w-24 sm:h-24 rounded-full mb-4 sm:mb-0 sm:mr-6" />
             ) : (
-                <div className="w-24 h-24 rounded-full bg-lyceum-blue flex items-center justify-center text-white text-4xl font-bold mr-6 flex-shrink-0">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-lyceum-blue flex items-center justify-center text-white text-4xl font-bold mb-4 sm:mb-0 sm:mr-6 flex-shrink-0">
                     {getInitials(student.name)}
                 </div>
             )}
-            <div>
+            <div className="text-center sm:text-left">
               <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">{student.name}</h1>
               <p className="text-gray-500 dark:text-gray-400">{student.major}</p>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Student ID: {student.contactId}</p>
@@ -177,7 +182,7 @@ const StudentProfileView: React.FC<StudentProfileViewProps> = (props) => {
           </div>
           {activeTab === 'overview' && <OverviewTab student={student} />}
           {activeTab === 'academics' && <AcademicsTab student={student} />}
-          {activeTab === 'settings' && <SettingsTab {...props} />}
+          {activeTab === 'settings' && <SettingsTab user={user} onUpdateProfile={handleUpdateProfile} onChangePassword={handleChangePassword} />}
         </main>
         
         <aside className="lg:col-span-1 space-y-6">

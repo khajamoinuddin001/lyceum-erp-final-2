@@ -1,43 +1,50 @@
-
-
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Menu, Search, Plus, MessageSquare, Activity, User, ChevronDown } from './icons';
 import ProfileDropdown from './ProfileDropdown';
 import NotificationsDropdown from './NotificationsDropdown';
-import type { User as UserType, Notification as NotificationType } from '../types';
+import { useData } from '../hooks/useData';
 
-interface HeaderProps {
-    sidebarOpen: boolean;
-    setSidebarOpen: (open: boolean) => void;
-    activeApp: string;
-    onAppSelect: (appName: string) => void;
-    onSearchClick: () => void;
-    onQuickCreateClick: () => void;
-    user: UserType;
-    onLogout: () => void;
-    notifications: NotificationType[];
-    onMarkAllNotificationsAsRead: () => void;
-    onNotificationClick: (link: { type: string, id: any }) => void;
-    notificationsOpen: boolean;
-    setNotificationsOpen: (open: boolean) => void;
-    darkMode: boolean;
-    setDarkMode: (value: boolean | ((val: boolean) => boolean)) => void;
-}
+const Header: React.FC = () => {
+  const { 
+      state, 
+      setSidebarOpen, 
+      handleAppSelect,
+      handleSave, 
+      handleLogout, 
+      markAllNotificationsAsRead, 
+      handleSearchResultSelect, 
+      setDarkMode
+  } = useData();
+  const { sidebarOpen, activeApp, currentUser: user, notifications, notificationsOpen, darkMode } = state;
 
-const Header: React.FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen, activeApp, onAppSelect, onSearchClick, onQuickCreateClick, user, onLogout, notifications, onMarkAllNotificationsAsRead, onNotificationClick, notificationsOpen, setNotificationsOpen, darkMode, setDarkMode }) => {
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const notificationsRef = useRef<HTMLDivElement>(null);
+
+  const filteredNotifications = useMemo(() => {
+    if (!user) return [];
+    return notifications.filter(n => {
+        const forEveryone = !n.recipientUserIds?.length && !n.recipientRoles?.length;
+        const forUser = n.recipientUserIds?.includes(user.id);
+        const forRole = n.recipientRoles?.includes(user.role);
+
+        if (forEveryone) {
+            return user.role !== 'Student';
+        }
+        
+        return !!(forUser || forRole);
+    });
+  }, [notifications, user]);
   
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = filteredNotifications.filter(n => !n.read).length;
 
   const toggleProfile = () => {
     setProfileOpen(!profileOpen);
-    setNotificationsOpen(false);
+    handleSave('notificationsOpen', false);
   }
 
   const toggleNotifications = () => {
-    setNotificationsOpen(!notificationsOpen);
+    handleSave('notificationsOpen', !notificationsOpen);
     setProfileOpen(false);
   }
   
@@ -47,12 +54,14 @@ const Header: React.FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen, activeApp,
         setProfileOpen(false);
       }
       if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
-        setNotificationsOpen(false);
+        handleSave('notificationsOpen', false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [handleSave]);
+
+  if (!user) return null;
 
   return (
     <header className="flex-shrink-0 bg-white dark:bg-gray-900 border-b dark:border-gray-700 shadow-sm z-30">
@@ -63,7 +72,7 @@ const Header: React.FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen, activeApp,
                     <Menu size={24} />
                  </button>
             )}
-            <button onClick={() => onAppSelect(user.role === 'Student' ? 'StudentDashboard' : 'Apps')} className="text-lg font-semibold text-gray-700 dark:text-gray-200 hover:text-lyceum-blue dark:hover:text-lyceum-blue transition-colors truncate">
+            <button onClick={() => handleAppSelect(user.role === 'Student' ? 'StudentDashboard' : 'Apps')} className="text-lg font-semibold text-gray-700 dark:text-gray-200 hover:text-lyceum-blue dark:hover:text-lyceum-blue transition-colors truncate">
               {activeApp === 'StudentDashboard' ? 'Student Portal' : activeApp}
             </button>
         </div>
@@ -71,11 +80,11 @@ const Header: React.FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen, activeApp,
         <div className="flex items-center space-x-2 sm:space-x-4">
            {user.role !== 'Student' && (
              <>
-              <button onClick={onSearchClick} className="p-2 text-gray-600 dark:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring" aria-label="Search">
+              <button onClick={() => handleSave('isSearchOpen', true)} className="p-2 text-gray-600 dark:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring" aria-label="Search">
                 <Search size={20} />
               </button>
               
-              <button onClick={onQuickCreateClick} className="p-2 text-gray-600 dark:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring" aria-label="Quick Create">
+              <button onClick={() => handleSave('isQuickCreateOpen', true)} className="p-2 text-gray-600 dark:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring" aria-label="Quick Create">
                 <Plus size={20} />
               </button>
               
@@ -97,10 +106,10 @@ const Header: React.FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen, activeApp,
                 </button>
                 <NotificationsDropdown 
                     isOpen={notificationsOpen} 
-                    onClose={() => setNotificationsOpen(false)}
-                    notifications={notifications}
-                    onMarkAllAsRead={onMarkAllNotificationsAsRead}
-                    onNotificationClick={onNotificationClick}
+                    onClose={() => handleSave('notificationsOpen', false)}
+                    notifications={filteredNotifications}
+                    onMarkAllAsRead={markAllNotificationsAsRead}
+                    onNotificationClick={handleSearchResultSelect}
                 />
               </div>
              </>
@@ -115,8 +124,8 @@ const Header: React.FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen, activeApp,
             <ProfileDropdown 
                 isOpen={profileOpen} 
                 onClose={() => setProfileOpen(false)} 
-                onNavigate={onAppSelect} 
-                onLogout={onLogout}
+                onNavigate={handleAppSelect} 
+                onLogout={handleLogout}
                 user={user}
                 darkMode={darkMode}
                 setDarkMode={setDarkMode}

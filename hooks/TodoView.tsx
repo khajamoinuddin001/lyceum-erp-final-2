@@ -1,13 +1,7 @@
-
-
 import React, { useState } from 'react';
 import type { TodoTask, TodoStatus } from '../types';
 import { CheckCircle2, Clock, Circle, X } from '../components/icons';
-
-interface TodoViewProps {
-  tasks: TodoTask[];
-  onSaveTask: (task: Omit<TodoTask, 'id'>) => void;
-}
+import { useData } from './useData';
 
 const statusConfig: { [key in TodoStatus]: { icon: React.ReactNode; label: string; color: string; } } = {
   todo: {
@@ -94,7 +88,9 @@ const NewTaskModal: React.FC<{ isOpen: boolean, onClose: () => void, onSave: (ta
     );
 };
 
-const TodoView: React.FC<TodoViewProps> = ({ tasks, onSaveTask }) => {
+const TodoView: React.FC = () => {
+  const { state, saveTask: onSaveTask } = useData();
+  const { tasks } = state;
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (

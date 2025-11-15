@@ -1,18 +1,7 @@
-
-
 import React, { useState, useMemo } from 'react';
 import { Plus, Search, Users, LogIn, CalendarClock, Edit } from './icons';
 import type { Visitor, User } from '../types';
-
-interface ReceptionViewProps {
-  visitors: Visitor[];
-  onNewVisitorClick: () => void;
-  onScheduleVisitorClick: () => void;
-  onCheckOut: (visitorId: number) => void;
-  onCheckInScheduled: (visitorId: number) => void;
-  onEditVisitor: (visitor: Visitor) => void;
-  user: User;
-}
+import { useData } from '../hooks/useData';
 
 const statusClasses: { [key in Visitor['status']]: string } = {
   'Scheduled': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300',
@@ -38,11 +27,17 @@ const StatCard: React.FC<{ title: string; value: string | number; icon: React.Re
     </div>
 );
 
-const ReceptionView: React.FC<ReceptionViewProps> = ({ visitors, onNewVisitorClick, onScheduleVisitorClick, onCheckOut, onCheckInScheduled, onEditVisitor, user }) => {
+const ReceptionView: React.FC = () => {
+    const { state, handleSave, visitorCheckOut, checkInScheduledVisitor, editVisitor } = useData();
+    const { visitors, currentUser: user } = state;
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState<'All' | 'Checked-in' | 'Checked-out'>('All');
     const [activeTab, setActiveTab] = useState<'log' | 'appointments'>('log');
+
+    const onNewVisitorClick = () => handleSave('isNewVisitorModalOpen', true);
+    const onScheduleVisitorClick = () => handleSave('isNewAppointmentModalOpen', true);
     
+    if (!user) return null;
     const canCreate = user.permissions?.['Reception']?.create;
     const canUpdate = user.permissions?.['Reception']?.update;
 
@@ -190,8 +185,8 @@ const ReceptionView: React.FC<ReceptionViewProps> = ({ visitors, onNewVisitorCli
                                         <td className="px-6 py-4 whitespace-nowrap text-sm"><span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClasses[visitor.status]}`}>{visitor.status}</span></td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div className="flex items-center justify-end space-x-4">
-                                                {canUpdate && <button onClick={() => onEditVisitor(visitor)} className="text-gray-400 hover:text-lyceum-blue" title="Edit"><Edit size={16} /></button>}
-                                                {visitor.status === 'Checked-in' && canUpdate && (<button onClick={() => onCheckOut(visitor.id)} className="text-lyceum-blue hover:text-lyceum-blue-dark">Check-out</button>)}
+                                                {canUpdate && <button onClick={() => editVisitor(visitor)} className="text-gray-400 hover:text-lyceum-blue" title="Edit"><Edit size={16} /></button>}
+                                                {visitor.status === 'Checked-in' && canUpdate && (<button onClick={() => visitorCheckOut(visitor.id)} className="text-lyceum-blue hover:text-lyceum-blue-dark">Check-out</button>)}
                                             </div>
                                         </td>
                                     </tr>
@@ -209,8 +204,8 @@ const ReceptionView: React.FC<ReceptionViewProps> = ({ visitors, onNewVisitorCli
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                           {canUpdate && (
                                              <div className="flex items-center justify-end space-x-4">
-                                                <button onClick={() => onEditVisitor(visitor)} className="text-gray-400 hover:text-lyceum-blue" title="Edit"><Edit size={16} /></button>
-                                                <button onClick={() => onCheckInScheduled(visitor.id)} className="text-lyceum-blue hover:text-lyceum-blue-dark">Check-in</button>
+                                                <button onClick={() => editVisitor(visitor)} className="text-gray-400 hover:text-lyceum-blue" title="Edit"><Edit size={16} /></button>
+                                                <button onClick={() => checkInScheduledVisitor(visitor.id)} className="text-lyceum-blue hover:text-lyceum-blue-dark">Check-in</button>
                                              </div>
                                           )}
                                         </td>

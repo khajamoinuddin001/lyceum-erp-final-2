@@ -1,7 +1,6 @@
 
 
 import React from 'react';
-// FIX: Removed INITIAL_COUPONS and its type import. The data has been moved to hooks/lms.ts to better group feature-specific data.
 import type { OdooApp, UserRole, AppPermissions, ChecklistItem, QuotationTemplate } from '../types';
 import {
   MessagesSquare,
