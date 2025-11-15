@@ -1,10 +1,11 @@
 
-import express from 'express';
+// FIX: Import explicit types from express.
+import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
 const { Prisma } = require('@prisma/client');
 
 // FIX: Add explicit types for Express middleware parameters.
-export const errorHandler = (err: Error & { code?: string; meta?: any }, req: express.Request, res: express.Response, next: express.NextFunction) => {
+export const errorHandler = (err: Error & { code?: string; meta?: any }, req: Request, res: Response, next: NextFunction) => {
     console.error(`[ERROR] ${new Date().toISOString()} - ${req.method} ${req.path}`);
     console.error(err);
 

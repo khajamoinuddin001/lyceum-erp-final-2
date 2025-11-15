@@ -1,16 +1,17 @@
 
-import express from 'express';
+// FIX: Import explicit types from express.
+import express, { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
 import prisma from '../lib/prisma';
-import { DEFAULT_PERMISSIONS } from '../../../components/constants';
+import { DEFAULT_PERMISSIONS } from '../constants';
 import { validate } from '../middleware/validate';
 import { updateUserSchema, setInitialPasswordSchema, changePasswordSchema, updateUserRoleSchema, updateUserPermissionsSchema, createUserSchema } from '../schemas/userSchemas';
 
 const router = express.Router();
 
 // PUT /api/users/:id (for profile updates)
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
-router.put('/:id', validate(updateUserSchema), async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+// FIX: Use explicit types for route handler parameters.
+router.put('/:id', validate(updateUserSchema), async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params;
         const { name, email } = req.body;
@@ -28,7 +29,7 @@ router.put('/:id', validate(updateUserSchema), async (req: express.Request, res:
             select: { id: true, name: true, email: true, role: true, permissions: true, mustResetPassword: true }
         });
 
-        const permissions = (updatedUserRaw.permissions as object) || DEFAULT_PERMISSIONS[updatedUserRaw.role] || {};
+        const permissions = (updatedUserRaw.permissions as object) || DEFAULT_PERMISSIONS[updatedUserRaw.role as keyof typeof DEFAULT_PERMISSIONS] || {};
         res.json({ ...updatedUserRaw, permissions });
     } catch (error) {
         next(error);
@@ -36,8 +37,8 @@ router.put('/:id', validate(updateUserSchema), async (req: express.Request, res:
 });
 
 // POST /api/users/set-initial-password
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
-router.post('/set-initial-password', validate(setInitialPasswordSchema), async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+// FIX: Use explicit types for route handler parameters.
+router.post('/set-initial-password', validate(setInitialPasswordSchema), async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { newPassword } = req.body;
         const userId = req.user?.userId;
@@ -56,15 +57,15 @@ router.post('/set-initial-password', validate(setInitialPasswordSchema), async (
             select: { id: true, name: true, email: true, role: true, permissions: true, mustResetPassword: true }
         });
 
-        res.json({ updatedUser: { ...updatedUser, permissions: (updatedUser.permissions as object) || DEFAULT_PERMISSIONS[updatedUser.role] } });
+        res.json({ updatedUser: { ...updatedUser, permissions: (updatedUser.permissions as object) || DEFAULT_PERMISSIONS[updatedUser.role as keyof typeof DEFAULT_PERMISSIONS] } });
     } catch (error) {
         next(error);
     }
 });
 
 // POST /api/users/:userId/change-password
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
-router.post('/:userId/change-password', validate(changePasswordSchema), async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+// FIX: Use explicit types for route handler parameters.
+router.post('/:userId/change-password', validate(changePasswordSchema), async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { userId } = req.params;
         const { current, newPass } = req.body;
@@ -94,7 +95,7 @@ router.post('/:userId/change-password', validate(changePasswordSchema), async (r
             select: { id: true, name: true, email: true, role: true, permissions: true, mustResetPassword: true }
         });
         
-        const permissions = (updatedUserRaw.permissions as object) || DEFAULT_PERMISSIONS[updatedUserRaw.role] || {};
+        const permissions = (updatedUserRaw.permissions as object) || DEFAULT_PERMISSIONS[updatedUserRaw.role as keyof typeof DEFAULT_PERMISSIONS] || {};
         res.json({ updatedUser: {...updatedUserRaw, permissions} });
     } catch (error) {
         next(error);
@@ -102,8 +103,8 @@ router.post('/:userId/change-password', validate(changePasswordSchema), async (r
 });
 
 // PUT /api/users/:userId/role
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
-router.put('/:userId/role', validate(updateUserRoleSchema), async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+// FIX: Use explicit types for route handler parameters.
+router.put('/:userId/role', validate(updateUserRoleSchema), async (req: Request, res: Response, next: NextFunction) => {
     try {
         if (req.user?.role !== 'Admin') {
             res.status(403).json({ message: 'Only admins can change roles.' });
@@ -135,8 +136,8 @@ router.put('/:userId/role', validate(updateUserRoleSchema), async (req: express.
 });
 
 // PUT /api/users/:userId/permissions
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
-router.put('/:userId/permissions', validate(updateUserPermissionsSchema), async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+// FIX: Use explicit types for route handler parameters.
+router.put('/:userId/permissions', validate(updateUserPermissionsSchema), async (req: Request, res: Response, next: NextFunction) => {
     try {
          if (req.user?.role !== 'Admin') {
             res.status(403).json({ message: 'Only admins can change permissions.' });
@@ -160,8 +161,8 @@ router.put('/:userId/permissions', validate(updateUserPermissionsSchema), async 
 });
 
 // POST /api/users (Add new staff)
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
-router.post('/', validate(createUserSchema), async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+// FIX: Use explicit types for route handler parameters.
+router.post('/', validate(createUserSchema), async (req: Request, res: Response, next: NextFunction) => {
     try {
         if (req.user?.role !== 'Admin') {
             res.status(403).json({ message: 'Only admins can add new users.' });

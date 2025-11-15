@@ -2,7 +2,8 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import express from 'express';
+// FIX: Import explicit types from express.
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import authRoutes from './routes/auth';
@@ -22,7 +23,7 @@ app.use(express.json()); // To parse JSON bodies
 
 // --- Health Check Endpoint ---
 // FIX: Use express.Request and express.Response to ensure correct type resolution.
-app.get('/api', (req: express.Request, res: express.Response) => {
+app.get('/api', (req: Request, res: Response) => {
   res.json({ message: 'Lyceum Academy API is running!' });
 });
 

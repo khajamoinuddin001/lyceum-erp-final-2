@@ -1,47 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 import bcrypt from 'bcryptjs';
+import { DEFAULT_PERMISSIONS } from '../src/constants';
 const prisma = new PrismaClient();
-const DEFAULT_PERMISSIONS = {
-  'Admin': {
-    "Dashboard": { "read": true, "create": true, "update": true, "delete": true },
-    "Contacts": { "read": true, "create": true, "update": true, "delete": true },
-    "LMS": { "read": true, "create": true, "update": true, "delete": true },
-    "CRM": { "read": true, "create": true, "update": true, "delete": true },
-    "Calendar": { "read": true, "create": true, "update": true, "delete": true },
-    "Discuss": { "read": true, "create": true, "update": true, "delete": true },
-    "Accounting": { "read": true, "create": true, "update": true, "delete": true },
-    "Sales": { "read": true, "create": true, "update": true, "delete": true },
-    "Inventory": { "read": true, "create": true, "update": true, "delete": true },
-    "Manufacturing": { "read": true, "create": true, "update": true, "delete": true },
-    "Website": { "read": true, "create": true, "update": true, "delete": true },
-    "Point of Sale": { "read": true, "create": true, "update": true, "delete": true },
-    "Marketing": { "read": true, "create": true, "update": true, "delete": true },
-    "To-do": { "read": true, "create": true, "update": true, "delete": true },
-    "Reception": { "read": true, "create": true, "update": true, "delete": true },
-    "Settings": { "read": true, "create": true, "update": true, "delete": true },
-    "Access Control": { "read": true, "create": true, "update": true, "delete": true }
-  },
-  'Employee': {
-    "Contacts": { "read": true, "create": true, "update": true, "delete": true },
-    "CRM": { "read": true, "create": true, "update": true, "delete": true },
-    "Calendar": { "read": true, "create": true, "update": true, "delete": true },
-    "Discuss": { "read": true, "create": true, "update": true, "delete": true },
-    "To-do": { "read": true, "create": true, "update": true, "delete": true },
-    "Reception": { "read": true, "create": true, "update": true, "delete": true },
-    "Sales": { "read": true, "create": true, "update": true, "delete": true },
-    "Marketing": { "read": true, "create": true, "update": true, "delete": true },
-    "LMS": { "read": true, "create": true, "update": true, "delete": true },
-    "Dashboard": { "read": true },
-    "Accounting": { "read": true },
-    "Inventory": { "read": true },
-    "Manufacturing": { "read": true },
-    "Website": { "read": true },
-    "Point of Sale": { "read": true }
-  },
-  'Student': {
-    'LMS': { "read": true },
-  },
-};
 
 async function main() {
     console.log('Start seeding ...');
@@ -84,6 +44,7 @@ async function main() {
             email: 'charlie.student@lyceum.academy',
             password: student1Password,
             role: 'Student',
+            permissions: DEFAULT_PERMISSIONS.Student as any,
         },
     });
 
@@ -95,6 +56,7 @@ async function main() {
             email: 'diana.student@lyceum.academy',
             password: student2Password,
             role: 'Student',
+            permissions: DEFAULT_PERMISSIONS.Student as any,
         },
     });
 

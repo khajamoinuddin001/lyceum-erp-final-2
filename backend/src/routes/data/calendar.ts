@@ -1,12 +1,13 @@
 
-import express from 'express';
+// FIX: Import explicit types from express.
+import express, { Request, Response, NextFunction } from 'express';
 import prisma from '../../lib/prisma';
 
 const router = express.Router();
 
 // GET /api/data/calendar/events
 // FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
-router.get('/events', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+router.get('/events', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const events = await prisma.calendarEvent.findMany();
         res.json(events);
@@ -17,7 +18,7 @@ router.get('/events', async (req: express.Request, res: express.Response, next: 
 
 // POST /api/data/calendar/events
 // FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
-router.post('/events', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+router.post('/events', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { title, start, end, ...rest } = req.body;
         if (!title || !start || !end) {
@@ -34,7 +35,7 @@ router.post('/events', async (req: express.Request, res: express.Response, next:
 
 // PUT /api/data/calendar/events/:id
 // FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
-router.put('/events/:id', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+router.put('/events/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id, title, start, end, ...rest } = req.body;
         if (!title || !start || !end) {
@@ -51,7 +52,7 @@ router.put('/events/:id', async (req: express.Request, res: express.Response, ne
 
 // DELETE /api/data/calendar/events/:id
 // FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
-router.delete('/events/:id', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+router.delete('/events/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
         await prisma.calendarEvent.delete({ where: { id: parseInt(req.params.id) } });
         const allEvents = await prisma.calendarEvent.findMany();

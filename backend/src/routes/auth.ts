@@ -1,10 +1,11 @@
 
-import express from 'express';
+// FIX: Import explicit types from express.
+import express, { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';
 import prisma from '../lib/prisma';
-import { DEFAULT_PERMISSIONS } from '../../../components/constants';
+import { DEFAULT_PERMISSIONS } from '../constants';
 import { validate } from '../middleware/validate';
 import { loginSchema, registerSchema } from '../schemas/authSchemas';
 
@@ -21,8 +22,8 @@ const authLimiter = rateLimit({
 });
 
 // POST /api/auth/register (For Students)
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
-router.post('/register', authLimiter, validate(registerSchema), async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+// FIX: Use explicit types for route handler parameters.
+router.post('/register', authLimiter, validate(registerSchema), async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { name, email, password } = req.body;
 
@@ -40,6 +41,7 @@ router.post('/register', authLimiter, validate(registerSchema), async (req: expr
                 email,
                 password: hashedPassword,
                 role: 'Student',
+                permissions: DEFAULT_PERMISSIONS['Student'] as any,
             },
         });
 
@@ -68,8 +70,8 @@ router.post('/register', authLimiter, validate(registerSchema), async (req: expr
 });
 
 // POST /api/auth/login
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
-router.post('/login', authLimiter, validate(loginSchema), async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+// FIX: Use explicit types for route handler parameters.
+router.post('/login', authLimiter, validate(loginSchema), async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email, password } = req.body;
 

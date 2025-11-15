@@ -1,5 +1,6 @@
 
-import express from 'express';
+// FIX: Import explicit types from express.
+import express, { Request, Response, NextFunction } from 'express';
 import prisma from '../../lib/prisma';
 import { validate } from '../../middleware/validate';
 import { checkInSchema, scheduleVisitorSchema, updateVisitorSchema } from '../../schemas/receptionSchemas';
@@ -8,7 +9,7 @@ const router = express.Router();
 
 // GET /api/data/reception/visitors
 // FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
-router.get('/visitors', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+router.get('/visitors', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const visitors = await prisma.visitor.findMany({ orderBy: { scheduledCheckIn: 'desc' } });
         res.json(visitors);
@@ -19,7 +20,7 @@ router.get('/visitors', async (req: express.Request, res: express.Response, next
 
 // POST /api/data/reception/visitors/check-in
 // FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
-router.post('/visitors/check-in', validate(checkInSchema), async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+router.post('/visitors/check-in', validate(checkInSchema), async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { name, company, host, cardNumber } = req.body;
         await prisma.visitor.create({
@@ -39,7 +40,7 @@ router.post('/visitors/check-in', validate(checkInSchema), async (req: express.R
 
 // PUT /api/data/reception/visitors/:id
 // FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
-router.put('/visitors/:id', validate(updateVisitorSchema), async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+router.put('/visitors/:id', validate(updateVisitorSchema), async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params;
         const { name, company, host, cardNumber } = req.body;
@@ -56,7 +57,7 @@ router.put('/visitors/:id', validate(updateVisitorSchema), async (req: express.R
 
 // POST /api/data/reception/visitors/:id/checkout
 // FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
-router.post('/visitors/:id/checkout', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+router.post('/visitors/:id/checkout', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const checkedOutVisitor = await prisma.visitor.update({
             where: { id: parseInt(req.params.id) },
@@ -71,7 +72,7 @@ router.post('/visitors/:id/checkout', async (req: express.Request, res: express.
 
 // POST /api/data/reception/visitors/schedule
 // FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
-router.post('/visitors/schedule', validate(scheduleVisitorSchema), async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+router.post('/visitors/schedule', validate(scheduleVisitorSchema), async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { scheduledCheckIn } = req.body;
         if (new Date(scheduledCheckIn) < new Date()) {
@@ -88,7 +89,7 @@ router.post('/visitors/schedule', validate(scheduleVisitorSchema), async (req: e
 
 // POST /api/data/reception/visitors/:id/check-in
 // FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
-router.post('/visitors/:id/check-in', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+router.post('/visitors/:id/check-in', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const checkedInVisitor = await prisma.visitor.update({
             where: { id: parseInt(req.params.id) },

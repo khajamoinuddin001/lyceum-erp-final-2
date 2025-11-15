@@ -9,7 +9,8 @@ const userRoleSchema = z.union([
 
 export const updateUserSchema = z.object({
     params: z.object({
-        userId: z.string().regex(/^\d+$/, "User ID must be a number"),
+        // FIX: Parameter name should be 'id' to match route '/:id'
+        id: z.string().regex(/^\d+$/, "User ID must be a number"),
     }),
     body: z.object({
         name: z.string().min(2, 'Name is required'),

@@ -1,13 +1,14 @@
 
-import express from 'express';
+// FIX: Import explicit types from express.
+import express, { Request, Response, NextFunction } from 'express';
 import prisma from '../../lib/prisma';
-import type { Channel } from '../../../../types';
+import type { Channel } from '../../types';
 
 const router = express.Router();
 
 // GET /api/data/discuss/channels
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
-router.get('/channels', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+// FIX: Use explicit types for route handler parameters.
+router.get('/channels', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const channels = await prisma.channel.findMany();
         res.json(channels);
@@ -17,8 +18,8 @@ router.get('/channels', async (req: express.Request, res: express.Response, next
 });
 
 // POST /api/data/discuss/channels/group
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
-router.post('/channels/group', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+// FIX: Use explicit types for route handler parameters.
+router.post('/channels/group', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { name, memberIds } = req.body;
         if (!name || !Array.isArray(memberIds) || memberIds.length === 0) {
@@ -50,8 +51,8 @@ router.post('/channels/group', async (req: express.Request, res: express.Respons
 });
 
 // PUT /api/data/discuss/channels
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
-router.put('/channels', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+// FIX: Use explicit types for route handler parameters.
+router.put('/channels', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const channels: Channel[] = req.body;
         if (!Array.isArray(channels)) {
