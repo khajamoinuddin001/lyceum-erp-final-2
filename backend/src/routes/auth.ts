@@ -1,9 +1,8 @@
 
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';
-// FIX: Removed asyncHandler to fix type inference issues in route handlers.
 import prisma from '../lib/prisma';
 import { DEFAULT_PERMISSIONS } from '../../../components/constants';
 import { validate } from '../middleware/validate';
@@ -22,8 +21,8 @@ const authLimiter = rateLimit({
 });
 
 // POST /api/auth/register (For Students)
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.post('/register', authLimiter, validate(registerSchema), async (req: Request, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.post('/register', authLimiter, validate(registerSchema), async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const { name, email, password } = req.body;
 
@@ -69,8 +68,8 @@ router.post('/register', authLimiter, validate(registerSchema), async (req: Requ
 });
 
 // POST /api/auth/login
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.post('/login', authLimiter, validate(loginSchema), async (req: Request, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.post('/login', authLimiter, validate(loginSchema), async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const { email, password } = req.body;
 

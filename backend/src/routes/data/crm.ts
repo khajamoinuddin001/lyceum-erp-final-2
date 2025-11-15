@@ -1,16 +1,14 @@
 
-import express, { Response, NextFunction } from 'express';
-// FIX: Removed asyncHandler to fix type inference issues in route handlers.
+import express from 'express';
 import prisma from '../../lib/prisma';
 import { validate } from '../../middleware/validate';
 import { createLeadSchema, updateLeadSchema, updateLeadStageSchema, createQuotationSchema, updateQuotationSchema } from '../../schemas/crmSchemas';
-import { AuthRequest } from '../../middleware/auth';
 
 const router = express.Router();
 
 // GET /api/data/crm/leads
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.get('/leads', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.get('/leads', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const leads = await prisma.crmLead.findMany({ include: { quotations: true }, orderBy: { createdAt: 'desc' } });
         res.json(leads);
@@ -20,8 +18,8 @@ router.get('/leads', async (req: AuthRequest, res: Response, next: NextFunction)
 });
 
 // POST /api/data/crm/leads
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.post('/leads', validate(createLeadSchema), async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.post('/leads', validate(createLeadSchema), async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const { id, quotations, ...leadData } = req.body;
         const newLead = await prisma.crmLead.create({ data: { ...leadData, stage: 'New', createdAt: new Date() } });
@@ -32,8 +30,8 @@ router.post('/leads', validate(createLeadSchema), async (req: AuthRequest, res: 
 });
 
 // PUT /api/data/crm/leads/:id
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.put('/leads/:id', validate(updateLeadSchema), async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.put('/leads/:id', validate(updateLeadSchema), async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const { id, quotations, ...leadData } = req.body;
         const updatedLead = await prisma.crmLead.update({ where: { id: parseInt(req.params.id) }, data: leadData });
@@ -45,8 +43,8 @@ router.put('/leads/:id', validate(updateLeadSchema), async (req: AuthRequest, re
 });
 
 // PUT /api/data/crm/leads/:id/stage
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.put('/leads/:id/stage', validate(updateLeadStageSchema), async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.put('/leads/:id/stage', validate(updateLeadStageSchema), async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const { stage } = req.body;
         await prisma.crmLead.update({ where: { id: parseInt(req.params.id) }, data: { stage } });
@@ -58,8 +56,8 @@ router.put('/leads/:id/stage', validate(updateLeadStageSchema), async (req: Auth
 });
 
 // GET /api/data/crm/quotation-templates
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.get('/quotation-templates', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.get('/quotation-templates', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const templates = await prisma.quotationTemplate.findMany();
         res.json(templates);
@@ -69,8 +67,8 @@ router.get('/quotation-templates', async (req: AuthRequest, res: Response, next:
 });
 
 // POST /api/data/crm/quotation-templates
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.post('/quotation-templates', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.post('/quotation-templates', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const { id, ...templateData } = req.body;
         // Add Zod validation here if needed
@@ -83,8 +81,8 @@ router.post('/quotation-templates', async (req: AuthRequest, res: Response, next
 });
 
 // PUT /api/data/crm/quotation-templates/:id
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.put('/quotation-templates/:id', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.put('/quotation-templates/:id', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const { id, ...templateData } = req.body;
         await prisma.quotationTemplate.update({ where: { id: parseInt(req.params.id) }, data: templateData });
@@ -96,8 +94,8 @@ router.put('/quotation-templates/:id', async (req: AuthRequest, res: Response, n
 });
 
 // DELETE /api/data/crm/quotation-templates/:id
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.delete('/quotation-templates/:id', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.delete('/quotation-templates/:id', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         await prisma.quotationTemplate.delete({ where: { id: parseInt(req.params.id) } });
         const templates = await prisma.quotationTemplate.findMany();
@@ -108,8 +106,8 @@ router.delete('/quotation-templates/:id', async (req: AuthRequest, res: Response
 });
 
 // POST /api/data/crm/leads/:leadId/quotations
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.post('/leads/:leadId/quotations', validate(createQuotationSchema), async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.post('/leads/:leadId/quotations', validate(createQuotationSchema), async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const { leadId } = req.params;
         const { title, description, lineItems, total } = req.body;
@@ -129,8 +127,8 @@ router.post('/leads/:leadId/quotations', validate(createQuotationSchema), async 
 });
 
 // PUT /api/data/crm/leads/:leadId/quotations/:id
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.put('/leads/:leadId/quotations/:id', validate(updateQuotationSchema), async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.put('/leads/:leadId/quotations/:id', validate(updateQuotationSchema), async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const { id } = req.params;
         const { title, description, lineItems, total, status } = req.body;

@@ -1,14 +1,12 @@
 
-import express, { Response, NextFunction } from 'express';
-// FIX: Removed asyncHandler to fix type inference issues in route handlers.
+import express from 'express';
 import prisma from '../../lib/prisma';
-import { AuthRequest } from '../../middleware/auth';
 
 const router = express.Router();
 
 // GET /api/data/calendar/events
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.get('/events', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.get('/events', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const events = await prisma.calendarEvent.findMany();
         res.json(events);
@@ -18,8 +16,8 @@ router.get('/events', async (req: AuthRequest, res: Response, next: NextFunction
 });
 
 // POST /api/data/calendar/events
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.post('/events', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.post('/events', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const { title, start, end, ...rest } = req.body;
         if (!title || !start || !end) {
@@ -35,8 +33,8 @@ router.post('/events', async (req: AuthRequest, res: Response, next: NextFunctio
 });
 
 // PUT /api/data/calendar/events/:id
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.put('/events/:id', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.put('/events/:id', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const { id, title, start, end, ...rest } = req.body;
         if (!title || !start || !end) {
@@ -52,8 +50,8 @@ router.put('/events/:id', async (req: AuthRequest, res: Response, next: NextFunc
 });
 
 // DELETE /api/data/calendar/events/:id
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.delete('/events/:id', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.delete('/events/:id', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         await prisma.calendarEvent.delete({ where: { id: parseInt(req.params.id) } });
         const allEvents = await prisma.calendarEvent.findMany();

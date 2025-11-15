@@ -1,14 +1,12 @@
 
-import express, { Response, NextFunction } from 'express';
-// FIX: Removed asyncHandler to fix type inference issues in route handlers.
+import express from 'express';
 import prisma from '../../lib/prisma';
-import { AuthRequest } from '../../middleware/auth';
 
 const router = express.Router();
 
 // GET /api/data/accounting/transactions
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.get('/transactions', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.get('/transactions', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const transactions = await prisma.accountingTransaction.findMany({ orderBy: { date: 'desc' } });
         res.json(transactions);
@@ -18,8 +16,8 @@ router.get('/transactions', async (req: AuthRequest, res: Response, next: NextFu
 });
 
 // POST /api/data/accounting/invoices
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.post('/invoices', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.post('/invoices', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const { customerName, amount, ...rest } = req.body;
         // Further validation could be added with Zod
@@ -36,8 +34,8 @@ router.post('/invoices', async (req: AuthRequest, res: Response, next: NextFunct
 });
 
 // POST /api/data/accounting/invoices/:id/record-payment
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.post('/invoices/:id/record-payment', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.post('/invoices/:id/record-payment', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const paidTransaction = await prisma.accountingTransaction.update({ where: { id: req.params.id }, data: { status: 'Paid' } });
         const allTransactions = await prisma.accountingTransaction.findMany({ orderBy: { date: 'desc' } });

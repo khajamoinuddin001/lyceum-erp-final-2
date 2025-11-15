@@ -1,15 +1,13 @@
 
-import express, { Response, NextFunction } from 'express';
-// FIX: Removed asyncHandler to fix type inference issues in route handlers.
+import express from 'express';
 import prisma from '../../lib/prisma';
-import { AuthRequest } from '../../middleware/auth';
 import type { Channel } from '../../../../types';
 
 const router = express.Router();
 
 // GET /api/data/discuss/channels
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.get('/channels', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.get('/channels', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const channels = await prisma.channel.findMany();
         res.json(channels);
@@ -19,8 +17,8 @@ router.get('/channels', async (req: AuthRequest, res: Response, next: NextFuncti
 });
 
 // POST /api/data/discuss/channels/group
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.post('/channels/group', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.post('/channels/group', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const { name, memberIds } = req.body;
         if (!name || !Array.isArray(memberIds) || memberIds.length === 0) {
@@ -52,8 +50,8 @@ router.post('/channels/group', async (req: AuthRequest, res: Response, next: Nex
 });
 
 // PUT /api/data/discuss/channels
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.put('/channels', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.put('/channels', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const channels: Channel[] = req.body;
         if (!Array.isArray(channels)) {

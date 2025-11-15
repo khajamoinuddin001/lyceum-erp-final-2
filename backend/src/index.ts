@@ -2,7 +2,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import authRoutes from './routes/auth';
@@ -16,13 +16,13 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 
 // --- Core Middleware ---
-app.use(helmet()); // Set security-related HTTP headers
-app.use(cors()); // Enable Cross-Origin Resource Sharing
+app.use(helmet()); 
+app.use(cors()); 
 app.use(express.json()); // To parse JSON bodies
 
 // --- Health Check Endpoint ---
-// FIX: Added explicit Request and Response types from express.
-app.get('/api', (req: Request, res: Response) => {
+// FIX: Use express.Request and express.Response to ensure correct type resolution.
+app.get('/api', (req: express.Request, res: express.Response) => {
   res.json({ message: 'Lyceum Academy API is running!' });
 });
 
@@ -31,7 +31,6 @@ app.get('/api', (req: Request, res: Response) => {
 app.use('/api/auth', authRoutes);
 
 // Protected routes (authentication is required)
-// FIX: Removed explicit casting as it can hide underlying type issues. The middleware and routes should be type-compatible.
 app.use('/api/data', authMiddleware, dataRoutes);
 app.use('/api/ai', authMiddleware, aiRoutes);
 app.use('/api/users', authMiddleware, usersRoutes);

@@ -1,13 +1,6 @@
-
-
-// FIX: Replaced import with require to work around potential module resolution or type generation issues.
 const { PrismaClient } = require('@prisma/client');
 import bcrypt from 'bcryptjs';
-
 const prisma = new PrismaClient();
-
-// This object is copied from the frontend to avoid a direct dependency.
-// In a real monorepo, this would be shared.
 const DEFAULT_PERMISSIONS = {
   'Admin': {
     "Dashboard": { "read": true, "create": true, "update": true, "delete": true },

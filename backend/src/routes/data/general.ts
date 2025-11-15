@@ -1,14 +1,12 @@
 
-import express, { Response, NextFunction } from 'express';
-// FIX: Removed asyncHandler to fix type inference issues in route handlers.
+import express from 'express';
 import prisma from '../../lib/prisma';
-import { AuthRequest } from '../../middleware/auth';
 
 const router = express.Router();
 
 // --- LOGS ---
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.get('/logs/activity', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.get('/logs/activity', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const logs = await prisma.activityLog.findMany({ orderBy: { timestamp: 'desc' }, take: 50 });
         res.json(logs);
@@ -17,8 +15,8 @@ router.get('/logs/activity', async (req: AuthRequest, res: Response, next: NextF
     }
 });
 
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.post('/logs/activity', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.post('/logs/activity', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const user = await prisma.user.findUnique({ where: { id: req.user?.userId }});
         if (!user) { res.status(404).json({ message: 'User not found' }); return; }
@@ -32,8 +30,8 @@ router.post('/logs/activity', async (req: AuthRequest, res: Response, next: Next
     }
 });
 
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.get('/logs/payment', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.get('/logs/payment', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const logs = await prisma.paymentActivityLog.findMany({ orderBy: { timestamp: 'desc' }, take: 50 });
         res.json(logs);
@@ -42,8 +40,8 @@ router.get('/logs/payment', async (req: AuthRequest, res: Response, next: NextFu
     }
 });
 
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.post('/logs/payment', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.post('/logs/payment', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const { text, amount, type } = req.body;
         if (!text || typeof amount !== 'number' || !type) {
@@ -59,8 +57,8 @@ router.post('/logs/payment', async (req: AuthRequest, res: Response, next: NextF
 });
 
 // --- CONTACTS ---
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.get('/contacts', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.get('/contacts', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const contacts = await prisma.contact.findMany({ orderBy: { createdAt: 'desc' } });
         res.json(contacts);
@@ -69,8 +67,8 @@ router.get('/contacts', async (req: AuthRequest, res: Response, next: NextFuncti
     }
 });
 
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.post('/contacts', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.post('/contacts', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const { id, ...contactData } = req.body;
         if (!contactData.name || !contactData.email || !contactData.contactId) {
@@ -84,8 +82,8 @@ router.post('/contacts', async (req: AuthRequest, res: Response, next: NextFunct
     }
 });
 
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.put('/contacts/:id', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.put('/contacts/:id', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const { id, ...contactData } = req.body;
          if (!contactData.name || !contactData.email) {
@@ -100,8 +98,8 @@ router.put('/contacts/:id', async (req: AuthRequest, res: Response, next: NextFu
 });
 
 // --- TASKS ---
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.get('/tasks', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.get('/tasks', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const tasks = await prisma.todoTask.findMany();
         res.json(tasks);
@@ -110,8 +108,8 @@ router.get('/tasks', async (req: AuthRequest, res: Response, next: NextFunction)
     }
 });
 
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.post('/tasks', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.post('/tasks', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const { title, dueDate, status } = req.body;
         if (!title || !dueDate || !status) {
@@ -127,8 +125,8 @@ router.post('/tasks', async (req: AuthRequest, res: Response, next: NextFunction
 });
 
 // --- NOTIFICATIONS ---
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.get('/notifications', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.get('/notifications', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const notifications = await prisma.notification.findMany({ orderBy: { timestamp: 'desc' } });
         res.json(notifications);
@@ -137,8 +135,8 @@ router.get('/notifications', async (req: AuthRequest, res: Response, next: NextF
     }
 });
 
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.post('/notifications', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.post('/notifications', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         if (!req.body.title || !req.body.description) {
             res.status(400).json({ message: 'Title and description are required.' });
@@ -152,8 +150,8 @@ router.post('/notifications', async (req: AuthRequest, res: Response, next: Next
     }
 });
 
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.post('/notifications/mark-all-read', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.post('/notifications/mark-all-read', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         // A real app would target user-specific notifications
         await prisma.notification.updateMany({ data: { read: true } });

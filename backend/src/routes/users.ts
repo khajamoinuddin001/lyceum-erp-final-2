@@ -1,10 +1,7 @@
 
-// FIX: Added Request and NextFunction to imports for explicit typing and error handling.
-import express, { Response, Request, NextFunction } from 'express';
+import express from 'express';
 import bcrypt from 'bcryptjs';
-// FIX: Removed asyncHandler to fix type inference issues in route handlers.
 import prisma from '../lib/prisma';
-import { AuthRequest } from '../middleware/auth';
 import { DEFAULT_PERMISSIONS } from '../../../components/constants';
 import { validate } from '../middleware/validate';
 import { updateUserSchema, setInitialPasswordSchema, changePasswordSchema, updateUserRoleSchema, updateUserPermissionsSchema, createUserSchema } from '../schemas/userSchemas';
@@ -12,8 +9,8 @@ import { updateUserSchema, setInitialPasswordSchema, changePasswordSchema, updat
 const router = express.Router();
 
 // PUT /api/users/:id (for profile updates)
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.put('/:id', validate(updateUserSchema), async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.put('/:id', validate(updateUserSchema), async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const { id } = req.params;
         const { name, email } = req.body;
@@ -39,8 +36,8 @@ router.put('/:id', validate(updateUserSchema), async (req: AuthRequest, res: Res
 });
 
 // POST /api/users/set-initial-password
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.post('/set-initial-password', validate(setInitialPasswordSchema), async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.post('/set-initial-password', validate(setInitialPasswordSchema), async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const { newPassword } = req.body;
         const userId = req.user?.userId;
@@ -66,8 +63,8 @@ router.post('/set-initial-password', validate(setInitialPasswordSchema), async (
 });
 
 // POST /api/users/:userId/change-password
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.post('/:userId/change-password', validate(changePasswordSchema), async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.post('/:userId/change-password', validate(changePasswordSchema), async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const { userId } = req.params;
         const { current, newPass } = req.body;
@@ -105,8 +102,8 @@ router.post('/:userId/change-password', validate(changePasswordSchema), async (r
 });
 
 // PUT /api/users/:userId/role
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.put('/:userId/role', validate(updateUserRoleSchema), async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.put('/:userId/role', validate(updateUserRoleSchema), async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         if (req.user?.role !== 'Admin') {
             res.status(403).json({ message: 'Only admins can change roles.' });
@@ -138,8 +135,8 @@ router.put('/:userId/role', validate(updateUserRoleSchema), async (req: AuthRequ
 });
 
 // PUT /api/users/:userId/permissions
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.put('/:userId/permissions', validate(updateUserPermissionsSchema), async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.put('/:userId/permissions', validate(updateUserPermissionsSchema), async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
          if (req.user?.role !== 'Admin') {
             res.status(403).json({ message: 'Only admins can change permissions.' });
@@ -163,8 +160,8 @@ router.put('/:userId/permissions', validate(updateUserPermissionsSchema), async 
 });
 
 // POST /api/users (Add new staff)
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.post('/', validate(createUserSchema), async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.post('/', validate(createUserSchema), async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         if (req.user?.role !== 'Admin') {
             res.status(403).json({ message: 'Only admins can add new users.' });

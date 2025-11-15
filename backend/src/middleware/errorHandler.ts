@@ -1,12 +1,10 @@
 
-import { Request, Response, NextFunction } from 'express';
+import express from 'express';
 import { ZodError } from 'zod';
-// FIX: Replaced import with require to work around potential module resolution or type generation issues.
 const { Prisma } = require('@prisma/client');
 
 // FIX: Add explicit types for Express middleware parameters.
-// FIX: Add type intersection to `err` to inform TypeScript of potential properties for type-safe access.
-export const errorHandler = (err: Error & { code?: string; meta?: any }, req: Request, res: Response, next: NextFunction) => {
+export const errorHandler = (err: Error & { code?: string; meta?: any }, req: express.Request, res: express.Response, next: express.NextFunction) => {
     console.error(`[ERROR] ${new Date().toISOString()} - ${req.method} ${req.path}`);
     console.error(err);
 
@@ -17,7 +15,6 @@ export const errorHandler = (err: Error & { code?: string; meta?: any }, req: Re
         });
     }
 
-    // FIX: Use a property-based check for Prisma errors as a robust fallback if type imports fail.
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
         // Unique constraint violation
         if (err.code === 'P2002') {

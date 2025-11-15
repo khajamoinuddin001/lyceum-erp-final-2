@@ -1,8 +1,6 @@
 
-import express, { Response, NextFunction } from 'express';
+import express from 'express';
 import { GoogleGenAI } from '@google/genai';
-// FIX: Removed asyncHandler to fix type inference issues in route handlers.
-import { AuthRequest } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -12,8 +10,8 @@ if (!process.env.API_KEY) {
 // Initialize only if API_KEY is available
 const ai = process.env.API_KEY ? new GoogleGenAI({ apiKey: process.env.API_KEY }) : null;
 
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.post('/summarize', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.post('/summarize', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         if (!ai) {
             return res.status(503).json({ message: 'AI Service is not configured.' });
@@ -35,8 +33,8 @@ router.post('/summarize', async (req: AuthRequest, res: Response, next: NextFunc
     }
 });
 
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.post('/analyze-document', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.post('/analyze-document', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         if (!ai) {
             return res.status(503).json({ message: 'AI Service is not configured.' });
@@ -74,8 +72,8 @@ router.post('/analyze-document', async (req: AuthRequest, res: Response, next: N
     }
 });
 
-// FIX: Removed asyncHandler and added try/catch with next() for error handling to resolve type issues.
-router.post('/draft-email', async (req: AuthRequest, res: Response, next: NextFunction) => {
+// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+router.post('/draft-email', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         if (!ai) {
             return res.status(503).json({ message: 'AI Service is not configured.' });
