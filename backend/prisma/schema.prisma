@@ -5,7 +5,7 @@
 // in your .env file to connect to your PostgreSQL database.
 datasource db {
   provider = "postgresql"
-  url      = env("postgresql://postgres:99892@Kha@db.tajnuqnittzhdqphwibi.supabase.co:5432/postgres")
+  url      = env("DATABASE_URL")
 }
 
 // Defines how the Prisma Client is generated. This creates the code
