@@ -1,7 +1,4 @@
 
-
-
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import type { LmsCourse, LmsLesson, LmsModule, Contact, User, QuizQuestion } from '../types';
 import { ArrowLeft, BookOpen, ChevronDown, CheckCircle2, Circle, Video, Plus, Edit, Trash2, X, Paperclip, FileQuestion, FileText, ChevronLeft, ChevronRight, MessageCircle } from './icons';

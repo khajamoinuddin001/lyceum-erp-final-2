@@ -1,11 +1,7 @@
-
-// FIX: Import explicit types from express.
+// Fix: Change to import types from express
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-key';
-
-// This is declaration merging. It adds the 'user' property to the global Express Request type.
 declare global {
   namespace Express {
     interface Request {
@@ -16,8 +12,7 @@ declare global {
     }
   }
 }
-
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
+// Fix: Use Request, Response, NextFunction types for correct type inference
 const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
 

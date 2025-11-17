@@ -1,5 +1,3 @@
-
-// FIX: Import explicit types from express.
 import express, { Request, Response, NextFunction } from 'express';
 import prisma from '../../lib/prisma';
 import type { Channel } from '../../types';
@@ -7,7 +5,6 @@ import type { Channel } from '../../types';
 const router = express.Router();
 
 // GET /api/data/discuss/channels
-// FIX: Use explicit types for route handler parameters.
 router.get('/channels', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const channels = await prisma.channel.findMany();
@@ -18,7 +15,6 @@ router.get('/channels', async (req: Request, res: Response, next: NextFunction) 
 });
 
 // POST /api/data/discuss/channels/group
-// FIX: Use explicit types for route handler parameters.
 router.post('/channels/group', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { name, memberIds } = req.body;
@@ -51,7 +47,6 @@ router.post('/channels/group', async (req: Request, res: Response, next: NextFun
 });
 
 // PUT /api/data/discuss/channels
-// FIX: Use explicit types for route handler parameters.
 router.put('/channels', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const channels: Channel[] = req.body;

@@ -1,12 +1,9 @@
-
-// FIX: Import explicit types from express.
 import express, { Request, Response, NextFunction } from 'express';
 import prisma from '../../lib/prisma';
 
 const router = express.Router();
 
 // GET /api/data/accounting/transactions
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.get('/transactions', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const transactions = await prisma.accountingTransaction.findMany({ orderBy: { date: 'desc' } });
@@ -17,7 +14,6 @@ router.get('/transactions', async (req: Request, res: Response, next: NextFuncti
 });
 
 // POST /api/data/accounting/invoices
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.post('/invoices', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { customerName, amount, ...rest } = req.body;
@@ -35,7 +31,6 @@ router.post('/invoices', async (req: Request, res: Response, next: NextFunction)
 });
 
 // POST /api/data/accounting/invoices/:id/record-payment
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.post('/invoices/:id/record-payment', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const paidTransaction = await prisma.accountingTransaction.update({ where: { id: req.params.id }, data: { status: 'Paid' } });

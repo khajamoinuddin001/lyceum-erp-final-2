@@ -1,5 +1,3 @@
-
-// FIX: Import explicit types from express.
 import express, { Request, Response, NextFunction } from 'express';
 import prisma from '../../lib/prisma';
 import { validate } from '../../middleware/validate';
@@ -8,7 +6,6 @@ import { createLeadSchema, updateLeadSchema, updateLeadStageSchema, createQuotat
 const router = express.Router();
 
 // GET /api/data/crm/leads
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.get('/leads', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const leads = await prisma.crmLead.findMany({ include: { quotations: true }, orderBy: { createdAt: 'desc' } });
@@ -19,7 +16,6 @@ router.get('/leads', async (req: Request, res: Response, next: NextFunction) => 
 });
 
 // POST /api/data/crm/leads
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.post('/leads', validate(createLeadSchema), async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id, quotations, ...leadData } = req.body;
@@ -31,7 +27,6 @@ router.post('/leads', validate(createLeadSchema), async (req: Request, res: Resp
 });
 
 // PUT /api/data/crm/leads/:id
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.put('/leads/:id', validate(updateLeadSchema), async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id, quotations, ...leadData } = req.body;
@@ -44,7 +39,6 @@ router.put('/leads/:id', validate(updateLeadSchema), async (req: Request, res: R
 });
 
 // PUT /api/data/crm/leads/:id/stage
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.put('/leads/:id/stage', validate(updateLeadStageSchema), async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { stage } = req.body;
@@ -57,7 +51,6 @@ router.put('/leads/:id/stage', validate(updateLeadStageSchema), async (req: Requ
 });
 
 // GET /api/data/crm/quotation-templates
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.get('/quotation-templates', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const templates = await prisma.quotationTemplate.findMany();
@@ -68,7 +61,6 @@ router.get('/quotation-templates', async (req: Request, res: Response, next: Nex
 });
 
 // POST /api/data/crm/quotation-templates
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.post('/quotation-templates', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id, ...templateData } = req.body;
@@ -82,7 +74,6 @@ router.post('/quotation-templates', async (req: Request, res: Response, next: Ne
 });
 
 // PUT /api/data/crm/quotation-templates/:id
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.put('/quotation-templates/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id, ...templateData } = req.body;
@@ -95,7 +86,6 @@ router.put('/quotation-templates/:id', async (req: Request, res: Response, next:
 });
 
 // DELETE /api/data/crm/quotation-templates/:id
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.delete('/quotation-templates/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
         await prisma.quotationTemplate.delete({ where: { id: parseInt(req.params.id) } });
@@ -107,7 +97,6 @@ router.delete('/quotation-templates/:id', async (req: Request, res: Response, ne
 });
 
 // POST /api/data/crm/leads/:leadId/quotations
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.post('/leads/:leadId/quotations', validate(createQuotationSchema), async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { leadId } = req.params;
@@ -128,7 +117,6 @@ router.post('/leads/:leadId/quotations', validate(createQuotationSchema), async 
 });
 
 // PUT /api/data/crm/leads/:leadId/quotations/:id
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.put('/leads/:leadId/quotations/:id', validate(updateQuotationSchema), async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params;

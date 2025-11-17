@@ -1,9 +1,8 @@
-
 import dotenv from 'dotenv';
 dotenv.config();
 
-// FIX: Import explicit types from express.
-import express, { Request, Response } from 'express';
+// Fix: Import Request, Response, and NextFunction types from express
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import authRoutes from './routes/auth';
@@ -18,11 +17,21 @@ const PORT = process.env.PORT || 4000;
 
 // --- Core Middleware ---
 app.use(helmet()); 
-app.use(cors()); 
+
+// Production-ready CORS configuration
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN || '*',
+};
+
+if (process.env.NODE_ENV === 'production' && corsOptions.origin === '*') {
+    console.warn('WARNING: CORS is configured to allow all origins in production. This is a security risk. Please set the CORS_ORIGIN environment variable to your frontend domain.');
+}
+app.use(cors(corsOptions));
+
 app.use(express.json()); // To parse JSON bodies
 
 // --- Health Check Endpoint ---
-// FIX: Use express.Request and express.Response to ensure correct type resolution.
+// Fix: Use imported Request and Response types
 app.get('/api', (req: Request, res: Response) => {
   res.json({ message: 'Lyceum Academy API is running!' });
 });

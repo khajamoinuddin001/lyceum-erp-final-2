@@ -13,7 +13,8 @@ import {
   LogOut,
   ClipboardList,
   ConciergeBell,
-  BookOpen
+  BookOpen,
+  ShoppingCart
 } from './icons';
 import type { User } from '../types';
 import { useData } from '../hooks/useData';
@@ -46,6 +47,7 @@ const allStaffNavItems = [
     { name: 'Contacts', icon: <Contact size={20} /> },
     { name: 'CRM', icon: <Users size={20} /> },
     { name: 'Accounting', icon: <FileText size={20} /> },
+    { name: 'Sales', icon: <ShoppingCart size={20} /> },
     { name: 'To-do', icon: <ClipboardList size={20} /> },
     { name: 'Reception', icon: <ConciergeBell size={20} /> },
 ];

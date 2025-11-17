@@ -1,11 +1,11 @@
-
-// FIX: Import explicit types from express.
+// Fix: Import types from express
 import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
-const { Prisma } = require('@prisma/client');
+// NOTE: If you see an error on the next line, it's likely because 'npx prisma generate' has not been run.
+// Fix: Use a named import for Prisma namespace.
+import { Prisma } from '@prisma/client';
 
-// FIX: Add explicit types for Express middleware parameters.
-export const errorHandler = (err: Error & { code?: string; meta?: any }, req: Request, res: Response, next: NextFunction) => {
+export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
     console.error(`[ERROR] ${new Date().toISOString()} - ${req.method} ${req.path}`);
     console.error(err);
 

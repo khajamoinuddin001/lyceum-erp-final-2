@@ -1,5 +1,3 @@
-
-// FIX: Import explicit types from express.
 import express, { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -8,21 +6,19 @@ import prisma from '../lib/prisma';
 import { DEFAULT_PERMISSIONS } from '../constants';
 import { validate } from '../middleware/validate';
 import { loginSchema, registerSchema } from '../schemas/authSchemas';
+import { UserRole } from '../types';
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-key';
 
-// Apply rate limiting to authentication routes to prevent brute-force attacks
 const authLimiter = rateLimit({
-	windowMs: 15 * 60 * 1000, // 15 minutes
-	max: 10, // Limit each IP to 10 requests per windowMs
+	windowMs: 15 * 60 * 1000, 
+	max: 10, 
 	standardHeaders: true,
 	legacyHeaders: false, 
     message: { message: 'Too many requests from this IP, please try again after 15 minutes' },
 });
 
-// POST /api/auth/register (For Students)
-// FIX: Use explicit types for route handler parameters.
 router.post('/register', authLimiter, validate(registerSchema), async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { name, email, password } = req.body;
@@ -45,7 +41,6 @@ router.post('/register', authLimiter, validate(registerSchema), async (req: Requ
             },
         });
 
-        // Create a corresponding Contact record
         const contactCount = await prisma.contact.count();
         const contactId = `LA${new Date().getFullYear()}${String(contactCount + 1).padStart(4, '0')}`;
         const newContact = await prisma.contact.create({
@@ -69,8 +64,6 @@ router.post('/register', authLimiter, validate(registerSchema), async (req: Requ
     }
 });
 
-// POST /api/auth/login
-// FIX: Use explicit types for route handler parameters.
 router.post('/login', authLimiter, validate(loginSchema), async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email, password } = req.body;
@@ -88,7 +81,10 @@ router.post('/login', authLimiter, validate(loginSchema), async (req: Request, r
         }
         
         const { password: _, ...userToReturn } = user;
-        const permissions = (user.permissions as object) || DEFAULT_PERMISSIONS[user.role] || {};
+        const role = user.role as UserRole;
+        const permissions = (user.permissions && typeof user.permissions === 'object' && Object.keys(user.permissions).length > 0) 
+            ? user.permissions 
+            : DEFAULT_PERMISSIONS[role] || {};
 
         const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
 

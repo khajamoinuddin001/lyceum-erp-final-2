@@ -1,6 +1,9 @@
-const { PrismaClient } = require('@prisma/client');
+// NOTE: If you see an error on the next line, it's likely because 'npx prisma generate' has not been run.
+// Fix: Use a named import for PrismaClient.
+import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { DEFAULT_PERMISSIONS } from '../src/constants';
+import { exit } from 'process';
 const prisma = new PrismaClient();
 
 async function main() {
@@ -94,7 +97,7 @@ async function main() {
 main()
     .catch((e) => {
         console.error(e);
-        process.exit(1);
+        exit(1);
     })
     .finally(async () => {
         await prisma.$disconnect();

@@ -3,9 +3,8 @@ import { DEFAULT_PERMISSIONS } from '../components/constants';
 
 // --- API Client Setup ---
 
-// Use an environment variable for the production API URL, falling back to localhost for development.
-// Hosting platforms like Vercel will inject this environment variable during the build process.
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000/api'; 
+// Use an environment variable for the production API URL, falling back to a relative path for same-origin deployments.
+const API_BASE_URL = process.env.REACT_APP_API_URL || '/api'; 
 
 const getToken = (): string | null => {
     try {

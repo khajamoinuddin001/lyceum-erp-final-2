@@ -1,12 +1,9 @@
-
-// FIX: Import explicit types from express.
 import express, { Request, Response, NextFunction } from 'express';
 import prisma from '../../lib/prisma';
 
 const router = express.Router();
 
 // GET /api/data/calendar/events
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.get('/events', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const events = await prisma.calendarEvent.findMany();
@@ -17,7 +14,6 @@ router.get('/events', async (req: Request, res: Response, next: NextFunction) =>
 });
 
 // POST /api/data/calendar/events
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.post('/events', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { title, start, end, ...rest } = req.body;
@@ -34,7 +30,6 @@ router.post('/events', async (req: Request, res: Response, next: NextFunction) =
 });
 
 // PUT /api/data/calendar/events/:id
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.put('/events/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id, title, start, end, ...rest } = req.body;
@@ -51,7 +46,6 @@ router.put('/events/:id', async (req: Request, res: Response, next: NextFunction
 });
 
 // DELETE /api/data/calendar/events/:id
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.delete('/events/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
         await prisma.calendarEvent.delete({ where: { id: parseInt(req.params.id) } });

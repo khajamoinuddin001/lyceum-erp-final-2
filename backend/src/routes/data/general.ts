@@ -1,12 +1,9 @@
-
-// FIX: Import explicit types from express.
 import express, { Request, Response, NextFunction } from 'express';
 import prisma from '../../lib/prisma';
 
 const router = express.Router();
 
 // --- LOGS ---
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.get('/logs/activity', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const logs = await prisma.activityLog.findMany({ orderBy: { timestamp: 'desc' }, take: 50 });
@@ -16,7 +13,6 @@ router.get('/logs/activity', async (req: Request, res: Response, next: NextFunct
     }
 });
 
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.post('/logs/activity', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = await prisma.user.findUnique({ where: { id: req.user?.userId }});
@@ -31,7 +27,6 @@ router.post('/logs/activity', async (req: Request, res: Response, next: NextFunc
     }
 });
 
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.get('/logs/payment', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const logs = await prisma.paymentActivityLog.findMany({ orderBy: { timestamp: 'desc' }, take: 50 });
@@ -41,7 +36,6 @@ router.get('/logs/payment', async (req: Request, res: Response, next: NextFuncti
     }
 });
 
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.post('/logs/payment', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { text, amount, type } = req.body;
@@ -58,7 +52,6 @@ router.post('/logs/payment', async (req: Request, res: Response, next: NextFunct
 });
 
 // --- CONTACTS ---
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.get('/contacts', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const contacts = await prisma.contact.findMany({ orderBy: { createdAt: 'desc' } });
@@ -68,7 +61,6 @@ router.get('/contacts', async (req: Request, res: Response, next: NextFunction) 
     }
 });
 
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.post('/contacts', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id, ...contactData } = req.body;
@@ -83,7 +75,6 @@ router.post('/contacts', async (req: Request, res: Response, next: NextFunction)
     }
 });
 
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.put('/contacts/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id, ...contactData } = req.body;
@@ -99,7 +90,6 @@ router.put('/contacts/:id', async (req: Request, res: Response, next: NextFuncti
 });
 
 // --- TASKS ---
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.get('/tasks', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const tasks = await prisma.todoTask.findMany();
@@ -109,7 +99,6 @@ router.get('/tasks', async (req: Request, res: Response, next: NextFunction) => 
     }
 });
 
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.post('/tasks', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { title, dueDate, status } = req.body;
@@ -126,7 +115,6 @@ router.post('/tasks', async (req: Request, res: Response, next: NextFunction) =>
 });
 
 // --- NOTIFICATIONS ---
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.get('/notifications', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const notifications = await prisma.notification.findMany({ orderBy: { timestamp: 'desc' } });
@@ -136,7 +124,6 @@ router.get('/notifications', async (req: Request, res: Response, next: NextFunct
     }
 });
 
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.post('/notifications', async (req: Request, res: Response, next: NextFunction) => {
     try {
         if (!req.body.title || !req.body.description) {
@@ -151,7 +138,6 @@ router.post('/notifications', async (req: Request, res: Response, next: NextFunc
     }
 });
 
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.post('/notifications/mark-all-read', async (req: Request, res: Response, next: NextFunction) => {
     try {
         // A real app would target user-specific notifications

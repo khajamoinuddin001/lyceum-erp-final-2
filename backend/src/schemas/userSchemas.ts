@@ -1,4 +1,3 @@
-
 import { z } from 'zod';
 
 const userRoleSchema = z.union([
@@ -9,13 +8,11 @@ const userRoleSchema = z.union([
 
 export const updateUserSchema = z.object({
     params: z.object({
-        // FIX: Parameter name should be 'id' to match route '/:id'
         id: z.string().regex(/^\d+$/, "User ID must be a number"),
     }),
     body: z.object({
         name: z.string().min(2, 'Name is required'),
-        // FIX: Changed Zod message from object to string for compatibility
-        email: z.string().email('Invalid email address'),
+        email: z.string().email({ message: 'Invalid email address' }),
     }),
 });
 
@@ -61,8 +58,7 @@ export const updateUserPermissionsSchema = z.object({
 export const createUserSchema = z.object({
   body: z.object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
-    // FIX: Added default validation message.
-    email: z.string().email('Invalid email address'),
+    email: z.string().email({ message: "Invalid email address" }),
     role: userRoleSchema,
     password: z.string().min(1, 'Password is required'), // Temporary password
     mustResetPassword: z.boolean().optional(),

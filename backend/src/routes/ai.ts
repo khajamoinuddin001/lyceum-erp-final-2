@@ -1,5 +1,3 @@
-
-// FIX: Import explicit types from express.
 import express, { Request, Response, NextFunction } from 'express';
 import { GoogleGenAI } from '@google/genai';
 
@@ -8,10 +6,8 @@ const router = express.Router();
 if (!process.env.API_KEY) {
     console.warn("API_KEY environment variable not set for Gemini API. AI features will not work.");
 }
-// Initialize only if API_KEY is available
 const ai = process.env.API_KEY ? new GoogleGenAI({ apiKey: process.env.API_KEY }) : null;
 
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.post('/summarize', async (req: Request, res: Response, next: NextFunction) => {
     try {
         if (!ai) {
@@ -26,15 +22,13 @@ router.post('/summarize', async (req: Request, res: Response, next: NextFunction
             model: 'gemini-2.5-flash',
             contents: `Summarize the following notes concisely for a student management system. Focus on key actions, decisions, and outcomes mentioned. Here are the notes:\n\n---\n\n${text}`
         });
-        res.json({ summary: response.text });
+        res.json({ summary: response.text ?? '' });
     } catch (error) {
         console.error("Gemini summarization error:", error);
-        // Pass error to the global error handler
         next(error);
     }
 });
 
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.post('/analyze-document', async (req: Request, res: Response, next: NextFunction) => {
     try {
         if (!ai) {
@@ -44,8 +38,6 @@ router.post('/analyze-document', async (req: Request, res: Response, next: NextF
          if (!documentText) {
             return res.status(400).json({ message: 'Document text is required.' });
         }
-        // As per frontend code, documentText is the document name. We'll use this for a placeholder prompt.
-        // A real implementation would involve passing document content.
         const prompt = `Based on the document name "${documentText}", infer the document type and provide placeholder information in a valid JSON format with keys "Document Type", "Student Name", and "Key Courses" (as an array of strings).`;
 
         const response = await ai.models.generateContent({
@@ -56,13 +48,12 @@ router.post('/analyze-document', async (req: Request, res: Response, next: NextF
             }
         });
         
-        const jsonText = response.text.replace(/```json/g, '').replace(/```/g, '').trim();
+        const jsonText = (response.text ?? '').replace(/```json/g, '').replace(/```/g, '').trim();
         const analysis = JSON.parse(jsonText);
         res.json({ analysis });
 
     } catch (error) {
         console.error("Gemini analysis error:", error);
-        // A more graceful fallback instead of throwing
         res.status(500).json({
             analysis: {
                 "Document Type": "Analysis Failed",
@@ -73,7 +64,6 @@ router.post('/analyze-document', async (req: Request, res: Response, next: NextF
     }
 });
 
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.post('/draft-email', async (req: Request, res: Response, next: NextFunction) => {
     try {
         if (!ai) {
@@ -91,7 +81,7 @@ router.post('/draft-email', async (req: Request, res: Response, next: NextFuncti
             contents: fullPrompt,
         });
 
-        res.json({ draft: response.text });
+        res.json({ draft: response.text ?? '' });
     } catch (error) {
         console.error("Gemini email draft error:", error);
         next(error);

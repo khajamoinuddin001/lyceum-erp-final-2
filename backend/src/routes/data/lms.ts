@@ -1,5 +1,3 @@
-
-// FIX: Import explicit types from express.
 import express, { Request, Response, NextFunction } from 'express';
 import prisma from '../../lib/prisma';
 import { validate } from '../../middleware/validate';
@@ -8,7 +6,6 @@ import { createCourseSchema, updateCourseSchema, createModuleSchema, createLesso
 const router = express.Router();
 
 // GET /api/data/lms/courses
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.get('/courses', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const courses = await prisma.lmsCourse.findMany({
@@ -24,7 +21,6 @@ router.get('/courses', async (req: Request, res: Response, next: NextFunction) =
 });
 
 // POST /api/data/lms/courses
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.post('/courses', validate(createCourseSchema), async (req: Request, res: Response, next: NextFunction) => {
     try {
         await prisma.lmsCourse.create({ data: { ...req.body, id: `course-${Date.now()}` } });
@@ -36,7 +32,6 @@ router.post('/courses', validate(createCourseSchema), async (req: Request, res: 
 });
 
 // PUT /api/data/lms/courses/:id
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.put('/courses/:id', validate(updateCourseSchema), async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id, ...courseData } = req.body;
@@ -49,7 +44,6 @@ router.put('/courses/:id', validate(updateCourseSchema), async (req: Request, re
 });
 
 // DELETE /api/data/lms/courses/:id
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.delete('/courses/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
         await prisma.lmsCourse.delete({ where: { id: req.params.id } });
@@ -61,7 +55,6 @@ router.delete('/courses/:id', async (req: Request, res: Response, next: NextFunc
 });
 
 // POST /api/data/lms/courses/:courseId/modules
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.post('/courses/:courseId/modules', validate(createModuleSchema), async (req: Request, res: Response, next: NextFunction) => {
     try {
         await prisma.lmsModule.create({
@@ -75,7 +68,6 @@ router.post('/courses/:courseId/modules', validate(createModuleSchema), async (r
 });
 
 // PUT /api/data/lms/courses/:courseId/modules/:moduleId
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.put('/courses/:courseId/modules/:moduleId', validate(createModuleSchema), async (req: Request, res: Response, next: NextFunction) => {
     try {
         await prisma.lmsModule.update({ where: { id: req.params.moduleId }, data: { title: req.body.title } });
@@ -87,7 +79,6 @@ router.put('/courses/:courseId/modules/:moduleId', validate(createModuleSchema),
 });
 
 // DELETE /api/data/lms/courses/:courseId/modules/:moduleId
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.delete('/courses/:courseId/modules/:moduleId', async (req: Request, res: Response, next: NextFunction) => {
     try {
         await prisma.lmsModule.delete({ where: { id: req.params.moduleId } });
@@ -99,7 +90,6 @@ router.delete('/courses/:courseId/modules/:moduleId', async (req: Request, res: 
 });
 
 // POST /api/data/lms/courses/:courseId/modules/:moduleId/lessons
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.post('/courses/:courseId/modules/:moduleId/lessons', validate(createLessonSchema), async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id, ...lessonData } = req.body;
@@ -114,7 +104,6 @@ router.post('/courses/:courseId/modules/:moduleId/lessons', validate(createLesso
 });
 
 // PUT /api/data/lms/courses/:courseId/lessons/:lessonId
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.put('/courses/:courseId/lessons/:lessonId', validate(createLessonSchema), async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id, ...lessonData } = req.body;
@@ -127,7 +116,6 @@ router.put('/courses/:courseId/lessons/:lessonId', validate(createLessonSchema),
 });
 
 // DELETE /api/data/lms/courses/:courseId/lessons/:lessonId
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.delete('/courses/:courseId/lessons/:lessonId', async (req: Request, res: Response, next: NextFunction) => {
     try {
         await prisma.lmsLesson.delete({ where: { id: req.params.lessonId } });
@@ -139,7 +127,6 @@ router.delete('/courses/:courseId/lessons/:lessonId', async (req: Request, res: 
 });
 
 // GET /api/data/lms/coupons
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.get('/coupons', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const coupons = await prisma.coupon.findMany();
@@ -150,7 +137,6 @@ router.get('/coupons', async (req: Request, res: Response, next: NextFunction) =
 });
 
 // POST /api/data/lms/coupons
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.post('/coupons', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { code, discountPercentage, ...data } = req.body;
@@ -167,7 +153,6 @@ router.post('/coupons', async (req: Request, res: Response, next: NextFunction) 
 });
 
 // DELETE /api/data/lms/coupons/:code
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.delete('/coupons/:code', async (req: Request, res: Response, next: NextFunction) => {
     try {
         await prisma.coupon.delete({ where: { code: req.params.code } });
@@ -179,7 +164,6 @@ router.delete('/coupons/:code', async (req: Request, res: Response, next: NextFu
 });
 
 // POST /api/data/lms/courses/:courseId/discussions/:threadId
-// FIX: Use express.Request, express.Response, and express.NextFunction to ensure correct type resolution.
 router.post('/courses/:courseId/discussions/:threadId', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { courseId, threadId } = req.params;
